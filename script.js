@@ -18,24 +18,39 @@ window.addEventListener("load", e => {
             this.score = score;
             this.speedY = -1;
             this.speedX = -1
+            this.speed = 0.1
             this.alpha = 1;
             this.markedForDeletion = false;
             this.elapseTime = 0;
             this.takePoints = takePoints
+            this.amplitude = 20
+           
         }
 
         update(deltaTime) {
             this.elapseTime += deltaTime;
-
-
-            this.y += this.speedY + Math.sin(0.001 * this.elapseTime) * -10;
-            this.x += this.speedX + Math.cos(0.001 * this.elapseTime) * -10;
-            this.alpha -= 0.004;
+        
+            const targetX = 70;
+            const targetY = 30;
+            
+            const distance = Math.hypot(targetX - this.x, targetY - this.y);
+            
+            
+            if (distance > 1) { 
+                const moveX = (targetX - this.x) * this.speed;
+                const moveY = (targetY - this.y) * this.speed;
+                this.x += moveX + Math.cos(0.01 * this.elapseTime) * this.amplitude;
+                this.y += moveY + Math.sin (0.01 * this.elapseTime) * this.amplitude
+                this.amplitude -= 0.15
+            }
+        
+            this.alpha -= 0.009;
             if (this.alpha <= 0) {
                 this.alpha = 0;
             }
-            if (this.y < 0) this.markedForDeletion = true
+            if (this.alpha <= 0) this.markedForDeletion = true;
         }
+        
 
         draw(context) {
             if (!this.takePoints) {
@@ -66,25 +81,30 @@ window.addEventListener("load", e => {
     class Confetti {
         constructor(game) {
             this.game = game;
-            this.radius = 5;
+            this.radius = Math.random ()* 8 + 2;
             this.colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00"];
             this.angle = Math.random() * Math.PI * 2;
             this.speed = Math.random() * 3 + 1;
             this.rotation = Math.random() * 4;
+            this.maxGrowth = 0.5
+            this.minGrowth = 0.01
+            this.growth = Math.random () * this.maxGrowth    +  this.minGrowth
             this.alpha = 1;
+            this.fall = Math.random() * 0.1 + 0.002
 
 
             this.x = Math.random() * this.game.width;
-            this.y = Math.random() * this.game.height;
+            this.y = Math.random() * this.game.height * 0.3;
         }
 
         update(deltaTime) {
 
-            this.x += Math.cos(this.angle) * this.speed * deltaTime;
-            this.y += Math.sin(this.angle) * this.speed * deltaTime;
+            this.x += Math.cos(this.angle + deltaTime) * this.speed ;
+            this.y +=(this.fall *deltaTime) +  Math.sin(this.angle + deltaTime) * this.speed ;
             this.angle += this.rotation * 0.1;
-
-
+            this.radius += this.growth
+            if (this.radius >= this.maxGrowth + this.minGrowth || this.radius <= this.minGrowth) this.growth *= -1
+            
             this.alpha -= 0.005;
             if (this.alpha <= 0) {
                 this.alpha = 0;
@@ -119,14 +139,15 @@ window.addEventListener("load", e => {
                 if ((e.key === "ArrowUp" ||
                     e.key === "ArrowDown" ||
                     e.key === "ArrowLeft" ||
-                    e.key === "ArrowRight")
+                    e.key === "ArrowRight" ||
+                    e.key === " ")
                     && this.game.keys.indexOf(e.key) === -1) {
-
                     this.game.keys.push(e.key);
-                } else if (e.key === " ") {
-                    this.game.player.shootTop();
                 } else if (e.key === "F2") {
                     this.game.debug = !this.game.debug
+                } else if (e.key === "p") {
+                    this.game.powerUp = this.game.player.enterPowerUp()
+                    this.game.player.powerUpLimit = Infinity
                 }
 
             });
@@ -224,7 +245,7 @@ window.addEventListener("load", e => {
             this.powerUpTimer = 0;
             this.powerUpLimit = 12000;
             this.elapsedTime = 0;
-            this.shootDelay = 100;
+            this.shootDelay = 150;
             this.lastShoot = 0
         }
         update(deltaTime) {
@@ -239,6 +260,7 @@ window.addEventListener("load", e => {
             if (this.game.keys.includes("ArrowLeft")) this.speedX = -this.maxSpeed;
             else if (this.game.keys.includes("ArrowRight")) this.speedX = this.maxSpeed;
             else this.speedX = 0
+            if (this.game.keys.includes(" ")) this.shootTop()
             this.x += (this.speedX * deltaTime) * 0.1
 
 
@@ -258,12 +280,12 @@ window.addEventListener("load", e => {
                     this.powerUpTimer = 0;
                     this.powerUp = false;
                     this.frameY = 0;
-                    this.shootDelay = 100;
+                    this.shootDelay = 50;
                 }
                 else {
                     this.powerUpTimer += deltaTime
                     this.frameY = 1;
-                    if (this.game.ammo != this.game.maxAmmo) this.game.ammo += 0.1;
+                    if (this.game.ammo != this.game.maxAmmo) this.game.ammo += 0.0095;
                     if (this.game.ammo > this.game.maxAmmo) this.game.ammo = this.game.maxAmmo
                 }
             }
@@ -293,19 +315,20 @@ window.addEventListener("load", e => {
                 this.lastShoot = 0;
                 this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 30))
                 this.game.ammo--;
+                if (this.powerUp) this.shootBottom();
             }
-            if (this.powerUp) this.shootBottom();
+            
         }
         shootBottom() {
-            if (this.game.ammo > 0) {
+                
                 this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 175))
-            }
+            
         }
         enterPowerUp() {
             this.powerUpTimer = 0;
             this.powerUp = true;
             this.game.ammo = this.game.maxAmmo;
-            this.shootDelay = 0
+            this.shootDelay = 120
         }
     }
     class Enemy {
@@ -554,6 +577,8 @@ window.addEventListener("load", e => {
             this.fontSize = 25;
             this.fontFamily = "Helvetica";
             this.color = "white"
+            this.x = 20;
+            this.y = 40
 
         }
         draw(context) {
@@ -565,7 +590,7 @@ window.addEventListener("load", e => {
             context.shadowColor = "black";
             context.fillStyle = this.color;
             context.font = `${this.fontSize}px ${this.fontFamily}`;
-            context.fillText(`Score:  ${this.game.score}`, 20, 40)
+            context.fillText(`Score:  ${this.game.score}`, this.x, this.y)
             context.shadowBlur = 3;
 
 
@@ -623,7 +648,7 @@ window.addEventListener("load", e => {
             this.enemyTimer = 0;
             this.enemyInterval = 1000;
             this.ammo = 80;
-            this.ammoInterval = 400;
+            this.ammoInterval = 800;
             this.ammoTimer = 0;
             this.maxAmmo = 80;
             this.gameOver = false;
@@ -719,24 +744,20 @@ window.addEventListener("load", e => {
             }
             if (this.score >= this.winningScore) {
 
-                this.confettis.push(new Confetti(this)); // Create a new confetti particle
+                this.confettis.push(new Confetti(this)); 
             }
 
-            // Update confetti particles
             this.confettis.forEach(confetti => {
                 confetti.update(deltaTime);
             });
 
-            // Remove confetti particles that have faded out completely
             this.confettis = this.confettis.filter(confetti => {
                 return confetti.alpha > 0;
             });
             this.scoreAnimations.forEach(animation => {
                 animation.update(deltaTime);
             });
-            this.scoreAnimations = this.scoreAnimations.filter(projectile => {
-                return !projectile.markedForDeletion
-            })
+            this.scoreAnimations = this.scoreAnimations.filter(animation => !animation.markedForDeletion);
 
 
         }
@@ -760,7 +781,7 @@ window.addEventListener("load", e => {
                 this.enemies.push(new Angler1(this));
             } else if (randomize < 0.6) {
                 this.enemies.push(new Angler2(this));
-            } else if (randomize < 0.9 && this.score > this.winningScore * 0.3) {
+            } else if (!this.enemies.some(enemy => enemy instanceof Hivewhale) && randomize < 0.9 && this.score > this.winningScore * 0.3) {
                 this.enemies.push(new Hivewhale(this));
             }
             else if (!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1) {
