@@ -8,53 +8,107 @@ canvas.width = 1220;
 canvas.height = 520;
 
 
+
 window.addEventListener("load", e => {
+    class ScoreAnimation {
+        constructor(game, x, y, score, takePoints) {
+            this.game = game;
+            this.x = x;
+            this.y = y;
+            this.score = score;
+            this.speedY = -1;
+            this.speedX = -1
+            this.alpha = 1;
+            this.markedForDeletion = false;
+            this.elapseTime = 0;
+            this.takePoints = takePoints
+        }
+
+        update(deltaTime) {
+            this.elapseTime += deltaTime;
+
+
+            this.y += this.speedY + Math.sin(0.001 * this.elapseTime) * -10;
+            this.x += this.speedX + Math.cos(0.001 * this.elapseTime) * -10;
+            this.alpha -= 0.004;
+            if (this.alpha <= 0) {
+                this.alpha = 0;
+            }
+            if (this.y < 0) this.markedForDeletion = true
+        }
+
+        draw(context) {
+            if (!this.takePoints) {
+                context.save();
+                context.globalAlpha = this.alpha;
+                context.fillStyle = "white";
+                context.strokeStyle = "yellow";
+                context.font = "40px Arial";
+                context.fillText(`+${this.score}`, this.x, this.y);
+                // context.strokeText(`-${this.score}`, this.x, this.y);
+
+                context.restore();
+            }
+            if (this.takePoints) {
+                context.save();
+                context.globalAlpha = this.alpha;
+                context.fillStyle = "white";
+                context.strokeStyle = "red"
+                context.font = "40px Arial";
+                context.fillText(`-${this.score}`, this.x, this.y);
+                context.strokeText(`-${this.score}`, this.x, this.y);
+
+                context.restore();
+            }
+        }
+    }
+
     class Confetti {
         constructor(game) {
-          this.game = game;
-          this.radius = 5;
-          this.colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00"]; // Array of confetti colors
-          this.angle = Math.random() * Math.PI * 2;
-          this.speed = Math.random() * 3 + 1; // Random speed for confetti pieces
-          this.rotation = Math.random() * 4; // Random rotation speed for confetti pieces
-          this.alpha = 1; // Initial alpha value for fading out effect
-      
-          // Generate random coordinates within the canvas dimensions
-          this.x = Math.random() * this.game.width;
-          this.y = Math.random() * this.game.height;
+            this.game = game;
+            this.radius = 5;
+            this.colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00"];
+            this.angle = Math.random() * Math.PI * 2;
+            this.speed = Math.random() * 3 + 1;
+            this.rotation = Math.random() * 4;
+            this.alpha = 1;
+
+
+            this.x = Math.random() * this.game.width;
+            this.y = Math.random() * this.game.height;
         }
-      
+
         update(deltaTime) {
-          // Update confetti position
-          this.x += Math.cos(this.angle) * this.speed;
-          this.y += Math.sin(this.angle) * this.speed;
-          this.angle += this.rotation * 0.1;
-      
-          // Fade out effect
-          this.alpha -= 0.005;
-          if (this.alpha <= 0) {
-            this.alpha = 0;
-          }
+
+            this.x += Math.cos(this.angle) * this.speed * deltaTime;
+            this.y += Math.sin(this.angle) * this.speed * deltaTime;
+            this.angle += this.rotation * 0.1;
+
+
+            this.alpha -= 0.005;
+            if (this.alpha <= 0) {
+                this.alpha = 0;
+            }
         }
-      
+
         draw(context) {
-          context.save();
-          context.globalAlpha = this.alpha;
-      
-          // Draw confetti piece as a circle
-          context.beginPath();
-          context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-          context.closePath();
-      
-          // Randomly select a color from the colors array
-          const color = this.colors[Math.floor(Math.random() * this.colors.length)];
-          context.fillStyle = color;
-          context.fill();
-      
-          context.restore();
+            context.save();
+            context.globalAlpha = this.alpha;
+
+            // Draw confetti piece as a circle
+            context.beginPath();
+            context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            context.closePath();
+
+            // Randomly select a color from the colors array
+            const color = this.colors[Math.floor(Math.random() * this.colors.length)];
+            context.fillStyle = color;
+            context.fill();
+
+            context.restore();
         }
-      }
-        
+    }
+
 
     class InputHadler {
         constructor(game) {
@@ -67,7 +121,7 @@ window.addEventListener("load", e => {
                     e.key === "ArrowLeft" ||
                     e.key === "ArrowRight")
                     && this.game.keys.indexOf(e.key) === -1) {
-                    
+
                     this.game.keys.push(e.key);
                 } else if (e.key === " ") {
                     this.game.player.shootTop();
@@ -100,7 +154,7 @@ window.addEventListener("load", e => {
         update(deltaTime) {
 
             this.x += this.speed;
-            if (this.x > this.game.width * 0.99) this.markedForDeletion = true;
+            if (this.x > this.game.width * 0.97) this.markedForDeletion = true;
         }
         draw(context) {
 
@@ -180,14 +234,14 @@ window.addEventListener("load", e => {
             else if (this.game.keys.includes("ArrowDown")) this.speedY = this.maxSpeed;
             else this.speedY = 0
             this.elapsedTime += deltaTime;
-            this.y += (this.speedY * deltaTime) * 0.1 + Math.sin(0.01 * this.elapsedTime) 
+            this.y += (this.speedY * deltaTime) * 0.1 + Math.sin(0.01 * this.elapsedTime)
 
             if (this.game.keys.includes("ArrowLeft")) this.speedX = -this.maxSpeed;
             else if (this.game.keys.includes("ArrowRight")) this.speedX = this.maxSpeed;
             else this.speedX = 0
             this.x += (this.speedX * deltaTime) * 0.1
 
-            
+
 
             this.projectiles.forEach(projectile => {
                 projectile.update();
@@ -209,7 +263,7 @@ window.addEventListener("load", e => {
                 else {
                     this.powerUpTimer += deltaTime
                     this.frameY = 1;
-                    if (this.game.ammo != this.game.maxAmmo ) this.game.ammo += 0.1;
+                    if (this.game.ammo != this.game.maxAmmo) this.game.ammo += 0.1;
                     if (this.game.ammo > this.game.maxAmmo) this.game.ammo = this.game.maxAmmo
                 }
             }
@@ -243,7 +297,7 @@ window.addEventListener("load", e => {
             if (this.powerUp) this.shootBottom();
         }
         shootBottom() {
-            if (this.game.ammo > 0 ) {
+            if (this.game.ammo > 0) {
                 this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 175))
             }
         }
@@ -417,7 +471,7 @@ window.addEventListener("load", e => {
             this.layer2 = new Layer(this.game, this.image2, 0.8)
             this.layer3 = new Layer(this.game, this.image3, 1.2)
             this.layer4 = new Layer(this.game, this.image4, 2)
-            this.layers = [ this.layer2, this.layer3]
+            this.layers = [this.layer2, this.layer3]
 
         }
         update() {
@@ -426,7 +480,7 @@ window.addEventListener("load", e => {
             this.layer4.update()
         }
         draw(context) {
-            if(this.game.score <500) this.layer1.draw(context)
+            if (this.game.score < 500) this.layer1.draw(context)
             this.layers.forEach(layer => layer.draw(context))
             this.layer4.draw(context)
 
@@ -434,56 +488,56 @@ window.addEventListener("load", e => {
     }
     class Explosion {
         constructor(game, x, y) {
-          this.game = game;
-          this.spriteHeight = 200;
-          this.spriteWidth = 200;
-          this.width = this.spriteWidth;
-          this.height = this.spriteHeight;
-          this.x = x - this.width * 0.5;
-          this.y = y - this.height * 0.5;
-          this.frameX = 0;
-          this.fps = 10;
-          this.timer = 0;
-          this.interval = 1000 / this.fps;
-          this.markedForDeletion = false;
-          this.maxFrame = 8;
+            this.game = game;
+            this.spriteHeight = 200;
+            this.spriteWidth = 200;
+            this.width = this.spriteWidth;
+            this.height = this.spriteHeight;
+            this.x = x - this.width * 0.5;
+            this.y = y - this.height * 0.5;
+            this.frameX = 0;
+            this.fps = 10;
+            this.timer = 0;
+            this.interval = 1000 / this.fps;
+            this.markedForDeletion = false;
+            this.maxFrame = 8;
         }
-      
+
         update(deltaTime) {
-          this.x -= this.game.speed;
-          if (this.timer > this.interval) {
-            this.frameX++;
-          } else {
-            this.timer += deltaTime;
-          }
-          if (this.frameX > this.maxFrame) {
-            this.markedForDeletion = true;
-          }
+            this.x -= this.game.speed;
+            if (this.timer > this.interval) {
+                this.frameX++;
+            } else {
+                this.timer += deltaTime;
+            }
+            if (this.frameX > this.maxFrame) {
+                this.markedForDeletion = true;
+            }
         }
-      
+
         draw(context) {
-          context.drawImage(
-            this.image,
-            this.frameX * this.spriteWidth,
-            0,
-            this.spriteWidth,
-            this.spriteHeight,
-            this.x,
-            this.y,
-            this.width,
-            this.height
-          );
+            context.drawImage(
+                this.image,
+                this.frameX * this.spriteWidth,
+                0,
+                this.spriteWidth,
+                this.spriteHeight,
+                this.x,
+                this.y,
+                this.width,
+                this.height
+            );
         }
-      }
-      
-      class SmokeExplosion extends Explosion {
+    }
+
+    class SmokeExplosion extends Explosion {
         constructor(game, x, y) {
-          super(game, x, y);
-          this.image = new Image();
-          this.image.src = "./effects/smokeExplosion.png";
+            super(game, x, y);
+            this.image = new Image();
+            this.image.src = "./effects/smokeExplosion.png";
         }
-      }
-      
+    }
+
 
     class FireExplosion extends Explosion {
         constructor(game, x, y) {
@@ -491,7 +545,7 @@ window.addEventListener("load", e => {
             this.image = new Image();
             this.image.src = "./effects/fireExplosion.png";
             this.fps = 2
-          }
+        }
     }
 
     class UI {
@@ -561,6 +615,7 @@ window.addEventListener("load", e => {
             this.input = new InputHadler(this);
             this.UI = new UI(this)
             this.keys = [];
+            this.scoreAnimations = [];
             this.enemies = []
             this.particles = []
             this.confettis = []
@@ -578,6 +633,7 @@ window.addEventListener("load", e => {
             this.timeLimit = 500000;
             this.speed = 1;
         }
+
         update(deltaTime) {
             if (!this.gameOver) this.gameTime += deltaTime;
             if (this.gameTime > this.timeLimit) this.gameOver = true;
@@ -602,7 +658,18 @@ window.addEventListener("load", e => {
                         this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5))
                     }
                     // if (enemy.type === "lucky") this.player.enterPowerUp()
-                    /*else */ if (this.score != 0 && !this.gameOver) this.score--
+                    /*else */ if (this.score != 0 && !this.gameOver) this.score -= enemy.lives
+                    const scoreAnimation = new ScoreAnimation(
+                        this.game,
+                        this.player.x + this.player.width * 0.5,
+                        this.player.y + this.player.height * 0.5,
+                        enemy.score,
+                        true
+                    );
+                    if (this.score != 0 && !this.gameOver) {
+                        this.score -= enemy.lives
+                        this.scoreAnimations.push(scoreAnimation);
+                    }
                 }
                 this.player.projectiles.forEach(projectile => {
                     if (this.checkCollision(projectile, enemy)) {
@@ -610,9 +677,22 @@ window.addEventListener("load", e => {
                         for (let i = 0; i < 2; i++) {
                             this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5))
                         }
+
+
+                        console.log(this.scoreAnimations)
                         projectile.markedForDeletion = true;
                         if (enemy.lives <= 0) {
                             enemy.markedForDeletion = true;
+
+                            const scoreAnimation = new ScoreAnimation(
+                                this.game,
+                                enemy.x + enemy.width * 0.5,
+                                enemy.y + enemy.height * 0.5,
+                                enemy.score,
+                                false
+                            );
+                            this.scoreAnimations.push(scoreAnimation);
+
                             this.addExplosion(enemy);
                             if (enemy.type === "hivewhale") {
                                 for (let i = 0; i < 3; i++) {
@@ -637,20 +717,28 @@ window.addEventListener("load", e => {
             } else {
                 this.enemyTimer += deltaTime;
             }
-    if (this.score >= this.winningScore) {
-         
-        this.confettis.push(new Confetti(this)); // Create a new confetti particle
-      }
-  
-      // Update confetti particles
-      this.confettis.forEach(confetti => {
-        confetti.update(deltaTime);
-      });
-  
-      // Remove confetti particles that have faded out completely
-      this.confettis = this.confettis.filter(confetti => {
-        return confetti.alpha > 0;
-      });
+            if (this.score >= this.winningScore) {
+
+                this.confettis.push(new Confetti(this)); // Create a new confetti particle
+            }
+
+            // Update confetti particles
+            this.confettis.forEach(confetti => {
+                confetti.update(deltaTime);
+            });
+
+            // Remove confetti particles that have faded out completely
+            this.confettis = this.confettis.filter(confetti => {
+                return confetti.alpha > 0;
+            });
+            this.scoreAnimations.forEach(animation => {
+                animation.update(deltaTime);
+            });
+            this.scoreAnimations = this.scoreAnimations.filter(projectile => {
+                return !projectile.markedForDeletion
+            })
+
+
         }
         draw(context) {
             this.background.draw(context)
@@ -660,9 +748,10 @@ window.addEventListener("load", e => {
             this.enemies.forEach(enemy => enemy.draw(context));
             this.explosions.forEach(explosion => explosion.draw(context));
             this.background.layer4.draw(context)
-            this.confettis.forEach(confetti => {
-                confetti.draw(ctx);
-              });
+            game.scoreAnimations.forEach(animation => {
+                animation.draw(context);
+            });
+            this.confettis.forEach(confetti => confetti.draw(ctx));
         }
         addEnemy() {
 
@@ -671,13 +760,12 @@ window.addEventListener("load", e => {
                 this.enemies.push(new Angler1(this));
             } else if (randomize < 0.6) {
                 this.enemies.push(new Angler2(this));
-            } else if (randomize < 0.9 && this.score  > this.winningScore * 0.3) {
+            } else if (randomize < 0.9 && this.score > this.winningScore * 0.3) {
                 this.enemies.push(new Hivewhale(this));
             }
-            else if(!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1) {
+            else if (!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1) {
                 this.enemies.push(new Lucky(this))
             }
-            console.log(this.enemies )
         }
         addExplosion(enemy) {
             const randomize = Math.random();
@@ -696,7 +784,7 @@ window.addEventListener("load", e => {
             );
         }
     }
-    
+
     const game = new Game(canvas.width, canvas.height)
 
 
@@ -705,7 +793,7 @@ window.addEventListener("load", e => {
         const deltaTime = timeStamp - lastTime
         lastTime = timeStamp
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
+
         game.draw(ctx);
         game.update(deltaTime);
         requestAnimationFrame(animate)
