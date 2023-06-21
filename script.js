@@ -148,9 +148,12 @@ window.addEventListener("load", e => {
                 } else if (e.key === "p") {
                     this.game.player.powerUp = !this.game.player.powerUp
                     this.game.player.powerUpLimit = Infinity
+                } else if (e.key === "q") {
+                    this.game.gameSound = !this.game.gameSound;
+                    console.log(this.game.gameSound)
                 }else if (e.key === "s") {
                     this.game.player.shield = !this.game.player.shield
-                    this.game.sound.shield()
+                    if(this.game.gameSound)  this.game.sound.shield()
                     this.game.shield.reset()
                 }
 
@@ -236,7 +239,7 @@ window.addEventListener("load", e => {
                     this.game.player.shield = false;
                     this.duration = 0;
                     this.frameX = 0;
-                    this.game.sound.shield();
+                    if(this.game.gameSound)   this.game.sound.shield();
                 }
             }
         }
@@ -257,7 +260,7 @@ window.addEventListener("load", e => {
 
         reset() {
             this.frameX = 0;
-            this.game.sound.shield();
+            if(this.game.gameSound) this.game.sound.shield();
         }
     }
 
@@ -424,7 +427,7 @@ window.addEventListener("load", e => {
         shootTop() {
             if (this.game.ammo > 0 && this.lastShoot > this.shootDelay) {
                 this.lastShoot = 0;
-                this.game.sound.shot()
+                if(this.game.gameSound) this.game.sound.shot()
                 this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 30))
                 this.game.ammo--;
                 if (this.powerUp) this.shootBottom();
@@ -441,7 +444,7 @@ window.addEventListener("load", e => {
             this.powerUp = true;
             this.game.ammo = this.game.maxAmmo;
             this.shootDelay = 100
-            this.game.sound.powerUp()
+            if(this.game.gameSound)  this.game.sound.powerUp()
         }
     }
     class Enemy {
@@ -828,6 +831,7 @@ window.addEventListener("load", e => {
             this.timeLimit = 500000;
             this.speed = 1;
             this.elapsedTime = 0
+            this.gameSound = true
         }
 
         update(deltaTime) {
@@ -852,12 +856,12 @@ window.addEventListener("load", e => {
             this.enemies.forEach(enemy => {
                 enemy.update(deltaTime);
                 if (this.checkCollision(this.player, enemy)) {
-                    this.sound.explosion();
-                    this.sound.hit();
+                    if(this.gameSound) this.sound.explosion();
+                    if(this.gameSound)this.sound.hit();
                     if (!this.player.shield) this.player.lives--
                     if (this.player.shield) {
                         this.shield.reset();
-                        this.sound.shield()
+                        if(this.gameSound) this.sound.shield()
                     }
                     enemy.markedForDeletion = true;
                     this.addExplosion(enemy);
@@ -889,7 +893,7 @@ window.addEventListener("load", e => {
                         projectile.markedForDeletion = true;
                         if (enemy.lives <= 0) {
                             enemy.markedForDeletion = true;
-                            this.sound.explosion();
+                            if(this.gameSound)this.sound.explosion();
                             const scoreAnimation = new ScoreAnimation(
                                 this.game,
                                 enemy.x + enemy.width * 0.5,
@@ -913,7 +917,7 @@ window.addEventListener("load", e => {
                             if (enemy.type === "lucky" || enemy.type === "moonfish") this.player.enterPowerUp()
                             if (enemy.type === "bulbwhale" || enemy.type === "moonfish") {
                                 this.player.shield = true
-                                this.sound.shield()
+                                if(this.gameSound)  this.sound.shield()
                                 this.shield.reset()
                             }
                             if(enemy.type === "bulbwhale" && this.player.lives < 10) this.player.lives++
