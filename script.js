@@ -21,36 +21,36 @@ window.addEventListener("load", e => {
             this.speed = 0.1
             this.alpha = 1;
             this.markedForDeletion = false;
-            this.elapseTime = 0;
+            this.elapsedTime = 0;
             this.takePoints = takePoints
             this.amplitude = 20
-           
+
         }
 
         update(deltaTime) {
-            this.elapseTime += deltaTime;
-        
+            this.elapsedTime += deltaTime;
+
             const targetX = 70;
             const targetY = 30;
-            
+
             const distance = Math.hypot(targetX - this.x, targetY - this.y);
-            
-            
-            if (distance > 1) { 
+
+
+            if (distance > 1) {
                 const moveX = (targetX - this.x) * this.speed;
                 const moveY = (targetY - this.y) * this.speed;
-                this.x += moveX + Math.cos(0.01 * this.elapseTime) * this.amplitude;
-                this.y += moveY + Math.sin (0.01 * this.elapseTime) * this.amplitude
+                this.x += moveX + Math.cos(0.01 * this.elapsedTime) * this.amplitude;
+                this.y += moveY + Math.sin(0.01 * this.elapsedTime) * this.amplitude
                 this.amplitude -= 0.15
             }
-        
+
             this.alpha -= 0.009;
             if (this.alpha <= 0) {
                 this.alpha = 0;
             }
             if (this.alpha <= 0) this.markedForDeletion = true;
         }
-        
+
 
         draw(context) {
             if (!this.takePoints) {
@@ -81,14 +81,14 @@ window.addEventListener("load", e => {
     class Confetti {
         constructor(game) {
             this.game = game;
-            this.radius = Math.random ()* 8 + 2;
+            this.radius = Math.random() * 8 + 2;
             this.colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00"];
             this.angle = Math.random() * Math.PI * 2;
             this.speed = Math.random() * 3 + 1;
             this.rotation = Math.random() * 4;
             this.maxGrowth = 0.5
             this.minGrowth = 0.01
-            this.growth = Math.random () * this.maxGrowth    +  this.minGrowth
+            this.growth = Math.random() * this.maxGrowth + this.minGrowth
             this.alpha = 1;
             this.fall = Math.random() * 0.1 + 0.002
 
@@ -99,12 +99,12 @@ window.addEventListener("load", e => {
 
         update(deltaTime) {
 
-            this.x += Math.cos(this.angle + deltaTime) * this.speed ;
-            this.y +=(this.fall *deltaTime) +  Math.sin(this.angle + deltaTime) * this.speed ;
+            this.x += Math.cos(this.angle + deltaTime) * this.speed;
+            this.y += (this.fall * deltaTime) + Math.sin(this.angle + deltaTime) * this.speed;
             this.angle += this.rotation * 0.1;
             this.radius += this.growth
             if (this.radius >= this.maxGrowth + this.minGrowth || this.radius <= this.minGrowth) this.growth *= -1
-            
+
             this.alpha -= 0.005;
             if (this.alpha <= 0) {
                 this.alpha = 0;
@@ -146,7 +146,7 @@ window.addEventListener("load", e => {
                 } else if (e.key === "F2") {
                     this.game.debug = !this.game.debug
                 } else if (e.key === "p") {
-                    this.game.powerUp = this.game.player.enterPowerUp()
+                    this.game.powerUp = this.game.player.powerUp = !this.game.player.powerUp
                     this.game.player.powerUpLimit = Infinity
                 }
 
@@ -247,10 +247,11 @@ window.addEventListener("load", e => {
             this.elapsedTime = 0;
             this.shootDelay = 150;
             this.lastShoot = 0
+            this.lives = 10;
+            
         }
         update(deltaTime) {
             this.lastShoot += deltaTime
-
             if (this.game.keys.includes("ArrowUp")) this.speedY = -this.maxSpeed;
             else if (this.game.keys.includes("ArrowDown")) this.speedY = this.maxSpeed;
             else this.speedY = 0
@@ -261,8 +262,8 @@ window.addEventListener("load", e => {
             else if (this.game.keys.includes("ArrowRight")) this.speedX = this.maxSpeed;
             else this.speedX = 0
             if (this.game.keys.includes(" ")) this.shootTop()
-            this.x += (this.speedX * deltaTime) * 0.1
-
+            this.x += (this.speedX * deltaTime) * 0.1;
+            
 
 
             this.projectiles.forEach(projectile => {
@@ -280,14 +281,19 @@ window.addEventListener("load", e => {
                     this.powerUpTimer = 0;
                     this.powerUp = false;
                     this.frameY = 0;
-                    this.shootDelay = 50;
-                }
-                else {
-                    this.powerUpTimer += deltaTime
+                    this.shootDelay = 150;
+                } else {
+                    this.powerUpTimer += deltaTime;
                     this.frameY = 1;
-                    if (this.game.ammo != this.game.maxAmmo) this.game.ammo += 0.0095;
-                    if (this.game.ammo > this.game.maxAmmo) this.game.ammo = this.game.maxAmmo
+                    this.game.ammo += 0.1;
+                    if (this.game.ammo !== this.game.maxAmmo) this.game.ammoInterval = 600;
+                    if (this.game.ammo > this.game.maxAmmo) this.game.ammo = this.game.maxAmmo;
+
                 }
+            } else {
+                this.frameY = 0;
+
+
             }
         }
         draw(context) {
@@ -295,7 +301,10 @@ window.addEventListener("load", e => {
             if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height)
             this.projectiles.forEach(projectile => {
                 projectile.draw(context);
-            })
+            });
+
+            this.drawLives(context);
+
             context.drawImage
                 (this.imgPlayer,
                     this.frameX * this.width,
@@ -309,6 +318,28 @@ window.addEventListener("load", e => {
 
             context.restore()
         }
+        drawLives(context) {
+            const livesIconWidth = 40; 
+            const livesIconHeight = 40; 
+            const livesSpacing = 10; 
+        
+            for (let i = 0; i < this.lives; i++) {
+              const lifeIconX = context.canvas.width * 0.5 + (i + 1) * (livesIconWidth + livesSpacing);
+              const lifeIconY = 10;
+        
+              context.drawImage(
+                this.imgPlayer,
+                0, // First frame X position
+                0, // First frame Y position
+                this.width,
+                this.height,
+                lifeIconX,
+                lifeIconY,
+                livesIconWidth,
+                livesIconHeight
+              );
+            }
+          }
 
         shootTop() {
             if (this.game.ammo > 0 && this.lastShoot > this.shootDelay) {
@@ -317,18 +348,18 @@ window.addEventListener("load", e => {
                 this.game.ammo--;
                 if (this.powerUp) this.shootBottom();
             }
-            
+
         }
         shootBottom() {
-                
-                this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 175))
-            
+
+            this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 175))
+
         }
         enterPowerUp() {
             this.powerUpTimer = 0;
             this.powerUp = true;
             this.game.ammo = this.game.maxAmmo;
-            this.shootDelay = 120
+            this.shootDelay = 50
         }
     }
     class Enemy {
@@ -346,17 +377,12 @@ window.addEventListener("load", e => {
             this.frameX = 0;
             this.frameY = 0;
             this.maxFrame = 37
-            this.elapseTime = 0
-
         }
 
         update(deltaTime) {
-            this.elapseTime += deltaTime
-            this.elapsetime %= 60
-            // if (this instanceof Lucky && this.elapsedTime > 10) {
-            //     this.game.enemies.push(new Lucky(this.game));
-            //     this.elapsedTime = 0;
-            //   }
+
+
+
             this.x += this.speedX - this.game.speed;
             this.speedY = Math.sin((this.game.speed + this.x) * 0.1);
             this.y += this.speedY;
@@ -425,6 +451,8 @@ window.addEventListener("load", e => {
             this.frameY = Math.floor(Math.random() * 2);
             this.lives = 6;
             this.score = 15;
+            this.speedY = Math.sin((this.game.speed + this.x) * 0.9);
+
             this.type = "lucky"
         }
     }
@@ -459,6 +487,37 @@ window.addEventListener("load", e => {
             this.speedX = Math.random() * -4.2 - 0.5;
         }
     }
+    class Bulbwhale extends Enemy {
+        constructor(game) {
+            super(game);
+            this.width = 270;
+            this.height = 219;
+            this.y = Math.random() * (this.game.height * 0.9 - this.height);
+            this.imgEnemy = new Image()
+            this.imgEnemy.src = "./enemies/bulbwhale.png";
+            this.frameY = Math.floor(Math.random() * 2)
+            this.lives = 12;
+            this.score = 17;
+            this.type = "bulbwhale";
+            this.speedX = Math.random() * -1.2 - 0.2;
+        }
+    }
+    class Moonfish extends Enemy {
+        constructor(game) {
+            super(game);
+            this.width = 227;
+            this.height = 240;
+            this.y = Math.random() * (this.game.height * 0.9 - this.height);
+            this.imgEnemy = new Image()
+            this.imgEnemy.src = "./enemies/moonfish.png";
+            this.frameY = Math.floor(Math.random() * 2)
+            this.lives = 18;
+            this.score = 17;
+            this.type = "moonfish";
+            this.speedX = Math.random() * -1.2 - 2;
+        }
+    }
+
     class Layer {
         constructor(game, image, speedModifier) {
             this.game = game;
@@ -503,11 +562,12 @@ window.addEventListener("load", e => {
             this.layer4.update()
         }
         draw(context) {
-            if (this.game.score < 500) this.layer1.draw(context)
-            this.layers.forEach(layer => layer.draw(context))
-            this.layer4.draw(context)
-
-        }
+            if ((this.game.score < 500 || (this.gameOver && this.game.score < this.game.winningScore)) && this.game.player.lives > 0) {
+              this.layer1.draw(context);
+            }
+            this.layers.forEach(layer => layer.draw(context));
+            this.layer4.draw(context);
+          }
     }
     class Explosion {
         constructor(game, x, y) {
@@ -613,6 +673,7 @@ window.addEventListener("load", e => {
                     message1 = "You Win!";
                     message2 = "Well done!!"
                 } else {
+                    this.game.background.layers.splice(0,1);
                     message1 = "You lose!";
                     message2 = "Try again next time!";
                 }
@@ -657,9 +718,12 @@ window.addEventListener("load", e => {
             this.gameTime = 0;
             this.timeLimit = 500000;
             this.speed = 1;
+            this.elapsedTime = 0
         }
 
         update(deltaTime) {
+            this.elapsedTime += deltaTime
+            if (this.player.lives === 0) this.gameOver = true;
             if (!this.gameOver) this.gameTime += deltaTime;
             if (this.gameTime > this.timeLimit) this.gameOver = true;
             this.background.update();
@@ -677,13 +741,14 @@ window.addEventListener("load", e => {
             this.enemies.forEach(enemy => {
                 enemy.update(deltaTime);
                 if (this.checkCollision(this.player, enemy)) {
+                    this.player.lives --
+                    console.log(this.player)
                     enemy.markedForDeletion = true;
                     this.addExplosion(enemy);
                     for (let i = 0; i < enemy.lives; i++) {
                         this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5))
                     }
-                    // if (enemy.type === "lucky") this.player.enterPowerUp()
-                    /*else */ if (this.score != 0 && !this.gameOver) this.score -= enemy.lives
+                 
                     const scoreAnimation = new ScoreAnimation(
                         this.game,
                         this.player.x + this.player.width * 0.5,
@@ -693,6 +758,7 @@ window.addEventListener("load", e => {
                     );
                     if (this.score != 0 && !this.gameOver) {
                         this.score -= enemy.lives
+                        if (this.score < 0) this.score = 0
                         this.scoreAnimations.push(scoreAnimation);
                     }
                 }
@@ -704,7 +770,6 @@ window.addEventListener("load", e => {
                         }
 
 
-                        console.log(this.scoreAnimations)
                         projectile.markedForDeletion = true;
                         if (enemy.lives <= 0) {
                             enemy.markedForDeletion = true;
@@ -729,7 +794,7 @@ window.addEventListener("load", e => {
                             }
                             if (!this.gameOver) this.score += enemy.score;
                             if (this.score > this.winningScore) this.gameOver = true;
-                            if (enemy.type === "lucky") this.player.enterPowerUp()
+                            if (enemy.type === "lucky" || enemy.type === "moonfish") this.player.enterPowerUp()
 
                         }
                     }
@@ -744,7 +809,7 @@ window.addEventListener("load", e => {
             }
             if (this.score >= this.winningScore) {
 
-                this.confettis.push(new Confetti(this)); 
+                this.confettis.push(new Confetti(this));
             }
 
             this.confettis.forEach(confetti => {
@@ -775,19 +840,27 @@ window.addEventListener("load", e => {
             this.confettis.forEach(confetti => confetti.draw(ctx));
         }
         addEnemy() {
-
             const randomize = Math.random();
             if (randomize < 0.3) {
                 this.enemies.push(new Angler1(this));
             } else if (randomize < 0.6) {
                 this.enemies.push(new Angler2(this));
-            } else if (!this.enemies.some(enemy => enemy instanceof Hivewhale) && randomize < 0.9 && this.score > this.winningScore * 0.3) {
+            } else if (!this.enemies.some(enemy => enemy instanceof Hivewhale) && randomize < 0.7 && this.score > this.winningScore * 0.3) {
                 this.enemies.push(new Hivewhale(this));
+            } else if (!this.enemies.some(enemy => enemy instanceof Bulbwhale) && randomize < 0.8 && this.score > this.winningScore * 0.6) {
+                this.enemies.push(new Bulbwhale(this));
+            } else if (!this.enemies.some(enemy => enemy instanceof Moonfish) && randomize < 0.9 && this.score > this.winningScore * 0.6) {
+                for (let i = 0; i < 4; i++) {
+                    this.enemies.push(new Moonfish(this));
+                }
             }
-            else if (!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1) {
-                this.enemies.push(new Lucky(this))
+
+            if (!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1 && this.elapsedTime >= 25000) {
+                this.enemies.push(new Lucky(this));
+                this.elapsedTime = 0;
             }
         }
+
         addExplosion(enemy) {
             const randomize = Math.random();
             if (randomize < 0.5) {
