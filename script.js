@@ -234,6 +234,9 @@ window.addEventListener("load", e => {
         
                 if (this.duration >= this.timeLimit) {
                     this.game.player.shield = false;
+                    this.duration = 0;
+                    this.frameX = 0;
+                    this.game.sound.shield();
                 }
             }
         }
@@ -913,7 +916,7 @@ window.addEventListener("load", e => {
                                 this.sound.shield()
                                 this.shield.reset()
                             }
-                            if(enemy.type === "bulbwhale" && this.game.player.lives < 10) this.player.lives ++
+                            if(enemy.type === "bulbwhale" && this.player.lives < 10) this.player.lives++
 
                         }
                     }
