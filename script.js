@@ -130,7 +130,7 @@ window.addEventListener("load", e => {
     }
 
 
-    class InputHadler {
+    class InputHandler {
         constructor(game) {
             this.game = game;
 
@@ -151,9 +151,9 @@ window.addEventListener("load", e => {
                 } else if (e.key === "q") {
                     this.game.gameSound = !this.game.gameSound;
                     console.log(this.game.gameSound)
-                }else if (e.key === "s") {
+                } else if (e.key === "s") {
                     this.game.player.shield = !this.game.player.shield
-                    if(this.game.gameSound)  this.game.sound.shield()
+                    if (this.game.gameSound) this.game.sound.shield()
                     this.game.shield.reset()
                 }
 
@@ -217,7 +217,7 @@ window.addEventListener("load", e => {
             this.timer = 0;
             this.activa
             this.duration = 0;
-            this.timeLimit= 12000
+            this.timeLimit = 12000
             this.fps = 30;
             this.interval = 1000 / this.fps;
         }
@@ -225,7 +225,7 @@ window.addEventListener("load", e => {
         update(deltaTime) {
             if (this.game.player.shield) {
                 this.duration += deltaTime;
-        
+
                 if (this.frameX <= this.maxFrame) {
                     if (this.timer > this.interval) {
                         this.frameX++;
@@ -234,16 +234,16 @@ window.addEventListener("load", e => {
                         this.timer += deltaTime;
                     }
                 }
-        
+
                 if (this.duration >= this.timeLimit) {
                     this.game.player.shield = false;
                     this.duration = 0;
                     this.frameX = 0;
-                    if(this.game.gameSound)   this.game.sound.shield();
+                    if (this.game.gameSound) this.game.sound.shield();
                 }
             }
         }
-        
+
         draw(context) {
             context.drawImage(
                 this.image,
@@ -260,7 +260,7 @@ window.addEventListener("load", e => {
 
         reset() {
             this.frameX = 0;
-            if(this.game.gameSound) this.game.sound.shield();
+            if (this.game.gameSound) this.game.sound.shield();
         }
     }
 
@@ -279,27 +279,27 @@ window.addEventListener("load", e => {
             this.maxFrame = 3
             this.timer = 0
             this.fps = 10
-            this.interval = 1000/this.fps
+            this.interval = 1000 / this.fps
         }
         update(deltaTime) {
             this.x += this.speed;
-        
+
             if (this.timer > this.interval) {
-              this.frameX++
-              this.frameX %= this.maxFrame
-              this.timer = 0;
+                this.frameX++
+                this.frameX %= this.maxFrame
+                this.timer = 0;
             } else {
-              this.timer += deltaTime;
+                this.timer += deltaTime;
             }
-        
+
             if (this.x > this.game.width * 0.97) this.markedForDeletion = true;
-          }
-        
+        }
+
         draw(context) {
 
             context.fillStyle = "yellow"
             // context.fillRect(this.x, this.y, this.width, this.height)
-            context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height, this.x, this.y, this.width,this.height)
+            context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height)
         }
     }
     class Particle {
@@ -401,7 +401,7 @@ window.addEventListener("load", e => {
                     this.powerUp = false;
                     this.frameY = 0;
                     this.shootDelay = 150;
-                    if(this.game.gameSound) this.game.sound.powerDown()
+                    if (this.game.gameSound) this.game.sound.powerDown()
                 } else {
                     this.powerUpTimer += deltaTime;
                     this.frameY = 1;
@@ -441,7 +441,7 @@ window.addEventListener("load", e => {
         shootTop() {
             if (this.game.ammo > 0 && this.lastShoot > this.shootDelay) {
                 this.lastShoot = 0;
-                if(this.game.gameSound) this.game.sound.shot()
+                if (this.game.gameSound) this.game.sound.shot()
                 this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 30))
                 this.game.ammo--;
                 if (this.powerUp) this.shootBottom();
@@ -458,7 +458,7 @@ window.addEventListener("load", e => {
             this.powerUp = true;
             this.game.ammo = this.game.maxAmmo;
             this.shootDelay = 100
-            if(this.game.gameSound)  this.game.sound.powerUp()
+            if (this.game.gameSound) this.game.sound.powerUp()
         }
     }
     class Enemy {
@@ -476,14 +476,15 @@ window.addEventListener("load", e => {
             this.frameX = 0;
             this.frameY = 0;
             this.maxFrame = 37
+            this.elapsedTime
+            this.amplitude = 1
+            this.frequency = 0.1
         }
 
         update(deltaTime) {
-
-
-
+            this.elapsedTime += deltaTime
             this.x += this.speedX - this.game.speed;
-            this.speedY = Math.sin((this.game.speed + this.x) * 0.1);
+            this.speedY = Math.sin((this.game.speed + this.x) * this.frequency) * this.amplitude;
             this.y += this.speedY;
             if (this.x + this.width < 0) this.markedForDeletion = true;
             this.frameX++
@@ -503,9 +504,10 @@ window.addEventListener("load", e => {
                 this.width,
                 this.height)
             context.fillStyle = "black"
-            context.font = "20px Helvetica"
+            context.font = "30px Helvetica"
             if (this.game.debug) context.fillText(this.lives, this.x, this.y)
             if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height)
+            if (this.game.debug) context.fillText(this.frameY, this.x + this.width, this.y + this.height)
 
             context.restore()
         }
@@ -522,6 +524,8 @@ window.addEventListener("load", e => {
             this.lives = 4;
             this.score = this.lives;
             this.type = "angler1"
+            this.amplitude = Math.random() * 1 + 1
+
         }
     }
     class Angler2 extends Enemy {
@@ -536,6 +540,8 @@ window.addEventListener("load", e => {
             this.lives = 5;
             this.score = this.lives;
             this.type = "angler2"
+            this.amplitude = Math.random() * 3 + 1
+
 
         }
     }
@@ -551,6 +557,7 @@ window.addEventListener("load", e => {
             this.lives = 6;
             this.score = 15;
             this.speedY = Math.sin((this.game.speed + this.x) * 0.9);
+            this.amplitude = Math.random() * 3.5 + 0.5
 
             this.type = "lucky"
         }
@@ -583,7 +590,10 @@ window.addEventListener("load", e => {
             this.lives = 3;
             this.score = this.lives;
             this.type = "drone";
-            this.speedX = Math.random() * -4.2 - 0.5;
+            this.speedX = Math.random() * -4.2 - 4;
+            this.amplitude = Math.random() * 5 + 2
+            this.frequency = 0.2
+
         }
     }
     class Bulbwhale extends Enemy {
@@ -609,13 +619,71 @@ window.addEventListener("load", e => {
             this.y = Math.random() * (this.game.height * 0.9 - this.height);
             this.imgEnemy = new Image()
             this.imgEnemy.src = "./enemies/moonfish.png";
-            this.frameY = Math.floor(Math.random() * 2)
+            this.frameY = 0;
             this.lives = 18;
             this.score = 17;
             this.type = "moonfish";
             this.speedX = Math.random() * -1.2 - 2;
         }
     }
+    class Stalker extends Enemy {
+        constructor(game) {
+            super(game);
+            this.width = 243;
+            this.height = 123;
+            this.y = Math.random() * (this.game.height * 0.9 - this.height);
+            this.imgEnemy = new Image();
+            this.imgEnemy.src = "./enemies/stalker.png";
+            this.frameY = 0;
+            this.lives = 7;
+            this.score = 20;
+            this.type = "stalker";
+            this.amplitude = 8;
+            this.speedX = -2;
+            this.followSpeed = 0.05;
+            this.amplitude = 8
+            this.frequency = 0.1
+        }
+    
+        update(deltaTime) {
+            this.elapsedTime += deltaTime;
+            this.x += this.speedX - this.game.speed;
+    
+            // Follow the player's position on the Y-axis
+            const targetY = this.game.player.y;
+            const deltaY = targetY - this.y;
+            this.speedY = Math.sin((this.game.speed + this.x) * this.frequency) * this.amplitude;
+            this.y += deltaY * this.followSpeed + this.speedY
+
+    
+            if (this.x + this.width < 0) this.markedForDeletion = true;
+            this.frameX++;
+            this.frameX %= this.maxFrame;
+        }
+    }
+    
+
+
+    class Razorfin extends Stalker {
+        constructor(game) {
+            super(game);
+            this.width = 187;
+            this.height = 149;
+            this.y = Math.random() * (this.game.height * 0.9 - this.height);
+            this.imgEnemy = new Image();
+            this.imgEnemy.src = "./enemies/razorfin.png";
+            this.frameY = 0;
+            this.lives = 6;
+            this.score = 15;
+            this.type = "razorfin";
+            this.followSpeed = 0.09;
+            this.amplitude = Math.random()* 11 + 4
+            this.frequency = 0.01
+        }
+
+
+    }
+
 
     class Layer {
         constructor(game, image, speedModifier) {
@@ -653,23 +721,17 @@ window.addEventListener("load", e => {
             this.layer3 = new Layer(this.game, this.image3, 1.2)
             this.layer4 = new Layer(this.game, this.image4, 2)
             this.layers = [this.layer2, this.layer3]
-            this.fps = 10;
-            this.timer = 0;
-            this.interval = 1000 / this.fps;
-            this.markedForDeletion = false;
             this.alpha = 1
             this.dissapear = false
 
         }
         update(deltaTime) {
-            this.timer += deltaTime;
-        
-            if (this.game.score >= this.game.winningScore * 0.05) {
+
+            if (this.game.score >= this.game.winningScore * 0.5) {
                 if (this.alpha > 0) {
-                    this.alpha -= 0.01 ; 
+                    this.alpha -= 0.005;
                     if (this.alpha < 0) {
                         this.alpha = 0;
-                        this.timer = 0;
                         this.dissapear = true;
                     }
                 }
@@ -677,26 +739,26 @@ window.addEventListener("load", e => {
                 this.alpha = 1;
                 this.dissapear = false;
             }
-        
+
             this.layer1.update();
             this.layers.forEach(layer => layer.update());
             this.layer4.update();
         }
-        
+
         draw(context) {
-            if ((this.game.score < this.game.winningScore * 0.52 || (this.gameOver && this.game.score < this.game.winningScore)) && this.game.player.lives > 0) {
-                context.globalAlpha = this.alpha; 
+            if ((this.game.score < this.game.winningScore * 0.55 || (this.gameOver && this.game.score < this.game.winningScore)) && this.game.player.lives > 0) {
+                context.globalAlpha = this.alpha;
                 this.layer1.draw(context);
-                context.globalAlpha = 1; 
+                context.globalAlpha = 1;
             }
-            
+
             this.layers.forEach(layer => layer.draw(context));
             this.layer4.draw(context);
         }
-        
-        
-        
-        
+
+
+
+
     }
     class Explosion {
         constructor(game, x, y) {
@@ -793,7 +855,11 @@ window.addEventListener("load", e => {
             } else {
                 const formattedTimeminutes = Math.floor(formattedTime / 60)
                 context.fillText(`Timer: ${formattedTimeminutes}:${formattedTimeseconds}`, 20, 100)
+                
             }
+            context.fillText(`Time limit ${(this.game.timeLimit * 0.00001).toFixed(2)} minutes`, this.game.width - 400, 80)
+            context.fillText(`Winning Score ${this.game.winningScore} points`, this.game.width - 420, 110)
+
 
             //gameOver message
             if (this.game.gameOver) {
@@ -852,7 +918,7 @@ window.addEventListener("load", e => {
             this.height = height;
             this.background = new Background(this);
             this.player = new Player(this);
-            this.input = new InputHadler(this);
+            this.input = new InputHandler(this);
             this.sound = new SoundController()
             this.shield = new Shield(this);
             this.UI = new UI(this)
@@ -885,7 +951,7 @@ window.addEventListener("load", e => {
             if (this.gameTime > this.timeLimit) this.gameOver = true;
             this.background.update(deltaTime);
             this.UI.update(deltaTime)
-            if (this.player.shield)this.shield.update(deltaTime)
+            if (this.player.shield) this.shield.update(deltaTime)
             this.player.update(deltaTime);
             if (this.ammoTimer > this.ammoInterval) {
                 if (this.ammo < this.maxAmmo) this.ammo++
@@ -900,19 +966,19 @@ window.addEventListener("load", e => {
             this.enemies.forEach(enemy => {
                 enemy.update(deltaTime);
                 if (this.checkCollision(this.player, enemy)) {
-                    if(this.gameSound) this.sound.explosion();
-                    if(this.gameSound)this.sound.hit();
+                    if (this.gameSound) this.sound.explosion();
+                    if (this.gameSound) this.sound.hit();
                     if (!this.player.shield) this.player.lives--
                     if (this.player.shield) {
                         this.shield.reset();
-                        if(this.gameSound) this.sound.shield()
+                        if (this.gameSound) this.sound.shield()
                     }
                     enemy.markedForDeletion = true;
                     this.addExplosion(enemy);
                     for (let i = 0; i < enemy.lives; i++) {
                         this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5))
                     }
-                    for (let i = 0; i < 12 - this.player.lives; i ++){
+                    for (let i = 0; i < 12 - this.player.lives; i++) {
                         this.particles.push(new Particle(this, this.player.x + this.player.width * 0.5, this.player.y + this.player.height * 0.5))
                     }
 
@@ -940,7 +1006,7 @@ window.addEventListener("load", e => {
                         projectile.markedForDeletion = true;
                         if (enemy.lives <= 0) {
                             enemy.markedForDeletion = true;
-                            if(this.gameSound)this.sound.explosion();
+                            if (this.gameSound) this.sound.explosion();
                             const scoreAnimation = new ScoreAnimation(
                                 this.game,
                                 enemy.x + enemy.width * 0.5,
@@ -964,10 +1030,10 @@ window.addEventListener("load", e => {
                             if (enemy.type === "lucky" || enemy.type === "moonfish") this.player.enterPowerUp()
                             if (enemy.type === "bulbwhale" || enemy.type === "moonfish") {
                                 this.player.shield = true
-                                if(this.gameSound)  this.sound.shield()
+                                if (this.gameSound) this.sound.shield()
                                 this.shield.reset()
                             }
-                            if(enemy.type === "bulbwhale" && this.player.lives < 10) this.player.lives++
+                            if (enemy.type === "bulbwhale" && this.player.lives < 10) this.player.lives++
 
                         }
                     }
@@ -1014,24 +1080,31 @@ window.addEventListener("load", e => {
         }
         addEnemy() {
             const randomize = Math.random();
-            if (randomize < 0.3) {
+            if (randomize < 0.2) {
                 this.enemies.push(new Angler1(this));
-            } else if (randomize < 0.6) {
+            } else if (randomize < 0.4 ) {
                 this.enemies.push(new Angler2(this));
-            } else if (!this.enemies.some(enemy => enemy instanceof Hivewhale) && randomize < 0.7 && this.score > this.winningScore * 0.3) {
+            } else if (!this.enemies.some(enemy => enemy instanceof Stalker) && randomize < 0.5 && this.score > this.winningScore * 0.7) {
+                this.enemies.push(new Stalker(this));
+            } else if (!this.enemies.some(enemy => enemy instanceof Razorfin) && randomize < 0.6 && this.score > this.winningScore * 0.1) {
+                this.enemies.push(new Razorfin(this));
+            } else if (!this.enemies.some(enemy => enemy instanceof Hivewhale) && randomize < 0.7 && this.score > this.winningScore * 0.45) {
                 this.enemies.push(new Hivewhale(this));
             } else if (!this.enemies.some(enemy => enemy instanceof Bulbwhale) && randomize < 0.8 && this.score > this.winningScore * 0.6) {
                 this.enemies.push(new Bulbwhale(this));
             } else if (!this.enemies.some(enemy => enemy instanceof Moonfish) && randomize < 0.9 && this.score > this.winningScore * 0.6) {
-                for (let i = 0; i < 5; i++) {
+                const randomize2 = Math.floor(Math.random()*4 + 1)
+                for (let i = 0; i < randomize2; i++) {
                     this.enemies.push(new Moonfish(this));
                 }
             }
+            console.log(this.enemies)
 
-            if (!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1 && this.elapsedTime >= 25000) {
+            if (!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.12 && this.elapsedTime >= 25000) {
                 this.enemies.push(new Lucky(this));
                 this.elapsedTime = 0;
             }
+
         }
 
         addExplosion(enemy) {
