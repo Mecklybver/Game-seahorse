@@ -269,23 +269,37 @@ window.addEventListener("load", e => {
             this.game = game;
             this.x = x;
             this.y = y;
-            this.width = 10;
-            this.height = 3;
+            this.width = 36.25;
+            this.height = 20;
             this.speed = 6;
             this.markedForDeletion = false;
             this.image = new Image();
-            this.image.src = "./player/projectile.png"
+            this.image.src = "./effects/projectile.png"
+            this.frameX = 0
+            this.maxFrame = 3
+            this.timer = 0
+            this.fps = 10
+            this.interval = 1000/this.fps
         }
         update(deltaTime) {
-
             this.x += this.speed;
+        
+            if (this.timer > this.interval) {
+              this.frameX++
+              this.frameX %= this.maxFrame
+              this.timer = 0;
+            } else {
+              this.timer += deltaTime;
+            }
+        
             if (this.x > this.game.width * 0.97) this.markedForDeletion = true;
-        }
+          }
+        
         draw(context) {
 
             context.fillStyle = "yellow"
-            context.fillRect(this.x, this.y, this.width, this.height)
-            context.drawImage(this.image, this.x - this.image.width * 0.5, this.y - this.image.height * 0.5)
+            // context.fillRect(this.x, this.y, this.width, this.height)
+            context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height, this.x, this.y, this.width,this.height)
         }
     }
     class Particle {
@@ -372,7 +386,7 @@ window.addEventListener("load", e => {
 
 
             this.projectiles.forEach(projectile => {
-                projectile.update();
+                projectile.update(deltaTime);
             })
             this.projectiles = this.projectiles.filter(projectile => {
                 return !projectile.markedForDeletion
@@ -387,7 +401,7 @@ window.addEventListener("load", e => {
                     this.powerUp = false;
                     this.frameY = 0;
                     this.shootDelay = 150;
-                    this.game.sound.powerDown()
+                    if(this.game.gameSound) this.game.sound.powerDown()
                 } else {
                     this.powerUpTimer += deltaTime;
                     this.frameY = 1;
@@ -639,20 +653,50 @@ window.addEventListener("load", e => {
             this.layer3 = new Layer(this.game, this.image3, 1.2)
             this.layer4 = new Layer(this.game, this.image4, 2)
             this.layers = [this.layer2, this.layer3]
+            this.fps = 10;
+            this.timer = 0;
+            this.interval = 1000 / this.fps;
+            this.markedForDeletion = false;
+            this.alpha = 1
+            this.dissapear = false
 
         }
-        update() {
-            this.layer1.update()
-            this.layers.forEach(layer => layer.update())
-            this.layer4.update()
-        }
-        draw(context) {
-            if ((this.game.score < 500 || (this.gameOver && this.game.score < this.game.winningScore)) && this.game.player.lives > 0) {
-                this.layer1.draw(context);
+        update(deltaTime) {
+            this.timer += deltaTime;
+        
+            if (this.game.score >= this.game.winningScore * 0.05) {
+                if (this.alpha > 0) {
+                    this.alpha -= 0.01 ; 
+                    if (this.alpha < 0) {
+                        this.alpha = 0;
+                        this.timer = 0;
+                        this.dissapear = true;
+                    }
+                }
+            } else {
+                this.alpha = 1;
+                this.dissapear = false;
             }
+        
+            this.layer1.update();
+            this.layers.forEach(layer => layer.update());
+            this.layer4.update();
+        }
+        
+        draw(context) {
+            if ((this.game.score < this.game.winningScore * 0.52 || (this.gameOver && this.game.score < this.game.winningScore)) && this.game.player.lives > 0) {
+                context.globalAlpha = this.alpha; 
+                this.layer1.draw(context);
+                context.globalAlpha = 1; 
+            }
+            
             this.layers.forEach(layer => layer.draw(context));
             this.layer4.draw(context);
         }
+        
+        
+        
+        
     }
     class Explosion {
         constructor(game, x, y) {
@@ -839,7 +883,7 @@ window.addEventListener("load", e => {
             if (this.player.lives === 0 && this.score < this.winningScore) this.gameOver = true;
             if (!this.gameOver) this.gameTime += deltaTime;
             if (this.gameTime > this.timeLimit) this.gameOver = true;
-            this.background.update();
+            this.background.update(deltaTime);
             this.UI.update(deltaTime)
             if (this.player.shield)this.shield.update(deltaTime)
             this.player.update(deltaTime);
@@ -867,6 +911,9 @@ window.addEventListener("load", e => {
                     this.addExplosion(enemy);
                     for (let i = 0; i < enemy.lives; i++) {
                         this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5))
+                    }
+                    for (let i = 0; i < 12 - this.player.lives; i ++){
+                        this.particles.push(new Particle(this, this.player.x + this.player.width * 0.5, this.player.y + this.player.height * 0.5))
                     }
 
                     const scoreAnimation = new ScoreAnimation(
