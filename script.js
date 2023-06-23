@@ -1,6 +1,5 @@
 
 const canvas = document.createElement("canvas");
-document.body.appendChild(canvas);
 const ctx = canvas.getContext("2d");
 // canvas.width = window.innerWidth;
 // canvas.height = window.innerHeight;
@@ -11,7 +10,7 @@ canvas.height = 520;
 
 window.addEventListener("load", e => {
 
-    
+
     class ScoreAnimation {
         constructor(game, x, y, score, takePoints) {
             this.game = game;
@@ -345,142 +344,142 @@ window.addEventListener("load", e => {
     }
     class Player {
         constructor(game) {
-          this.game = game;
-          this.width = 120;
-          this.height = 190;
-          this.x = 20;
-          this.y = 100;
-          this.frameX = 0;
-          this.frameY = 0;
-          this.maxFrame = 37;
-          this.speedY = 0;
-          this.speedX = 0;
-          this.maxSpeed = 2;
-          this.projectiles = [];
-          this.imgPlayer = new Image();
-          this.imgPlayer.src = "./player/player.png";
-          this.powerUp = false;
-          this.powerUpTimer = 0;
-          this.powerUpLimit = 12000;
-          this.elapsedTime = 0;
-          this.shootDelay = 150;
-          this.lastShoot = 0;
-          this.lives = 10;
-          this.shield = false;
-          this.alpha = 1;
-          this.previousPlayers = [];    
-        }
-      
-        update(deltaTime) {
-          this.lastShoot += deltaTime;
-          if (this.powerUp) {
-
-            if (this.alpha > 0.2) {
-              this.alpha -= 0.01;
-              this.alpha = Math.max(this.alpha, 0);
-            }
-          }
-      
-          if (this.game.keys.includes("ArrowUp")) this.speedY = -this.maxSpeed;
-          else if (this.game.keys.includes("ArrowDown")) this.speedY = this.maxSpeed;
-          else this.speedY = 0;
-          this.elapsedTime += deltaTime;
-          this.y += (this.speedY * deltaTime) * 0.1 + Math.sin(0.01 * this.elapsedTime);
-      
-          if (this.game.keys.includes("ArrowLeft")) this.speedX = -this.maxSpeed;
-          else if (this.game.keys.includes("ArrowRight")) this.speedX = this.maxSpeed;
-          else this.speedX = 0;
-          if (this.game.keys.includes(" ")) this.shootTop();
-          this.x += (this.speedX * deltaTime) * 0.1;
-      
-          if (this.powerUp) {
-            this.previousPlayers.push({
-              x: this.x,
-              y: this.y,
-              alpha: this.alpha
-            });
-      
-            if (this.previousPlayers.length > 25) {
-              this.previousPlayers.shift(); 
-            }
-          }
-      
-          this.projectiles.forEach(projectile => {
-            projectile.update(deltaTime);
-          });
-          this.projectiles = this.projectiles.filter(projectile => {
-            return !projectile.markedForDeletion;
-          });
-      
-          // Frame animation
-          this.frameX++;
-          this.frameX %= this.maxFrame;
-      
-          // Power
-          if (this.powerUp) {
-            if (this.powerUpTimer > this.powerUpLimit) {
-              this.powerUpTimer = 0;
-              this.powerUp = false;
-              this.frameY = 0;
-              this.shootDelay = 150;
-              this.previousPlayers = [];
-              if (this.game.gameSound) this.game.sound.powerDown();
-            } else {
-              this.powerUpTimer += deltaTime;
-              this.frameY = 1;
-              this.game.ammo += 0.03;
-              if (this.game.ammo !== this.game.maxAmmo) this.game.ammoInterval = 600;
-              if (this.game.ammo > this.game.maxAmmo) this.game.ammo = this.game.maxAmmo;
-            }
-          } else {
+            this.game = game;
+            this.width = 120;
+            this.height = 190;
+            this.x = 20;
+            this.y = 100;
+            this.frameX = 0;
             this.frameY = 0;
-          }
+            this.maxFrame = 37;
+            this.speedY = 0;
+            this.speedX = 0;
+            this.maxSpeed = 2;
+            this.projectiles = [];
+            this.imgPlayer = new Image();
+            this.imgPlayer.src = "./player/player.png";
+            this.powerUp = false;
+            this.powerUpTimer = 0;
+            this.powerUpLimit = 12000;
+            this.elapsedTime = 0;
+            this.shootDelay = 150;
+            this.lastShoot = 0;
+            this.lives = 10;
+            this.shield = false;
+            this.alpha = 1;
+            this.previousPlayers = [];
         }
-      
+
+        update(deltaTime) {
+            this.lastShoot += deltaTime;
+            if (this.powerUp) {
+
+                if (this.alpha > 0.2) {
+                    this.alpha -= 0.01;
+                    this.alpha = Math.max(this.alpha, 0);
+                }
+            }
+
+            if (this.game.keys.includes("ArrowUp")) this.speedY = -this.maxSpeed;
+            else if (this.game.keys.includes("ArrowDown")) this.speedY = this.maxSpeed;
+            else this.speedY = 0;
+            this.elapsedTime += deltaTime;
+            this.y += (this.speedY * deltaTime) * 0.1 + Math.sin(0.01 * this.elapsedTime);
+
+            if (this.game.keys.includes("ArrowLeft")) this.speedX = -this.maxSpeed;
+            else if (this.game.keys.includes("ArrowRight")) this.speedX = this.maxSpeed;
+            else this.speedX = 0;
+            if (this.game.keys.includes(" ")) this.shootTop();
+            this.x += (this.speedX * deltaTime) * 0.1;
+
+            if (this.powerUp) {
+                this.previousPlayers.push({
+                    x: this.x,
+                    y: this.y,
+                    alpha: this.alpha
+                });
+
+                if (this.previousPlayers.length > 25) {
+                    this.previousPlayers.shift();
+                }
+            }
+
+            this.projectiles.forEach(projectile => {
+                projectile.update(deltaTime);
+            });
+            this.projectiles = this.projectiles.filter(projectile => {
+                return !projectile.markedForDeletion;
+            });
+
+            // Frame animation
+            this.frameX++;
+            this.frameX %= this.maxFrame;
+
+            // Power
+            if (this.powerUp) {
+                if (this.powerUpTimer > this.powerUpLimit) {
+                    this.powerUpTimer = 0;
+                    this.powerUp = false;
+                    this.frameY = 0;
+                    this.shootDelay = 150;
+                    this.previousPlayers = [];
+                    if (this.game.gameSound) this.game.sound.powerDown();
+                } else {
+                    this.powerUpTimer += deltaTime;
+                    this.frameY = 1;
+                    this.game.ammo += 0.03;
+                    if (this.game.ammo !== this.game.maxAmmo) this.game.ammoInterval = 600;
+                    if (this.game.ammo > this.game.maxAmmo) this.game.ammo = this.game.maxAmmo;
+                }
+            } else {
+                this.frameY = 0;
+            }
+        }
+
         draw(context) {
             context.save();
-          
+
             if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
-          
+
             this.projectiles.forEach(projectile => {
-              projectile.draw(context);
+                projectile.draw(context);
             });
-          
+
             if (this.powerUp) {
-              this.previousPlayers.forEach(prevPlayer => {
-                context.globalAlpha = prevPlayer.alpha;
-                context.drawImage(
-                  this.imgPlayer,
-                  this.frameX * this.width,
-                  this.frameY * this.height,
-                  this.width,
-                  this.height,
-                  prevPlayer.x,
-                  prevPlayer.y,
-                  this.width,
-                  this.height
-                );
-              });
+                this.previousPlayers.forEach(prevPlayer => {
+                    context.globalAlpha = prevPlayer.alpha;
+                    context.drawImage(
+                        this.imgPlayer,
+                        this.frameX * this.width,
+                        this.frameY * this.height,
+                        this.width,
+                        this.height,
+                        prevPlayer.x,
+                        prevPlayer.y,
+                        this.width,
+                        this.height
+                    );
+                });
             }
-          
+
             context.globalAlpha = 1;
             context.drawImage(
-              this.imgPlayer,
-              this.frameX * this.width,
-              this.frameY * this.height,
-              this.width,
-              this.height,
-              this.x,
-              this.y,
-              this.width,
-              this.height
+                this.imgPlayer,
+                this.frameX * this.width,
+                this.frameY * this.height,
+                this.width,
+                this.height,
+                this.x,
+                this.y,
+                this.width,
+                this.height
             );
-          
+
             context.restore();
-          }
-          
-      
-      
+        }
+
+
+
         shootTop() {
             if (this.game.ammo > 0 && this.lastShoot > this.shootDelay) {
                 this.lastShoot = 0;
@@ -687,24 +686,24 @@ window.addEventListener("load", e => {
             this.amplitude = 8
             this.frequency = 0.1
         }
-    
+
         update(deltaTime) {
             this.elapsedTime += deltaTime;
             this.x += this.speedX - this.game.speed;
-    
+
             // Follow the player's position on the Y-axis
             const targetY = this.game.player.y;
             const deltaY = targetY - this.y;
             this.speedY = Math.sin((this.game.speed + this.x) * this.frequency) * this.amplitude;
             this.y += deltaY * this.followSpeed + this.speedY
 
-    
+
             if (this.x + this.width < 0) this.markedForDeletion = true;
             this.frameX++;
             this.frameX %= this.maxFrame;
         }
     }
-    
+
 
 
     class Razorfin extends Stalker {
@@ -720,7 +719,7 @@ window.addEventListener("load", e => {
             this.score = 15;
             this.type = "razorfin";
             this.followSpeed = 0.09;
-            this.amplitude = Math.random()* 11 + 4
+            this.amplitude = Math.random() * 11 + 4
             this.frequency = 0.01
         }
 
@@ -898,7 +897,7 @@ window.addEventListener("load", e => {
             } else {
                 const formattedTimeminutes = Math.floor(formattedTime / 60)
                 context.fillText(`Timer: ${formattedTimeminutes}:${formattedTimeseconds}`, 20, 100)
-                
+
             }
             context.fillText(`Time limit ${(this.game.timeLimit * 0.00001).toFixed(2)} minutes`, this.game.width - 400, 80)
             context.fillText(`Winning Score ${this.game.winningScore} points`, this.game.width - 420, 110)
@@ -1125,10 +1124,12 @@ window.addEventListener("load", e => {
             const randomize = Math.random();
             if (randomize < 0.2) {
                 this.enemies.push(new Angler1(this));
-            } else if (randomize < 0.4 ) {
+            } else if (randomize < 0.4) {
                 this.enemies.push(new Angler2(this));
             } else if (!this.enemies.some(enemy => enemy instanceof Stalker) && randomize < 0.5 && this.score > this.winningScore * 0.7) {
-                this.enemies.push(new Stalker(this));
+                for (let i = 0; i < 3; i++) {
+                    this.enemies.push(new Stalker(this));
+                }
             } else if (!this.enemies.some(enemy => enemy instanceof Razorfin) && randomize < 0.6 && this.score > this.winningScore * 0.1) {
                 this.enemies.push(new Razorfin(this));
             } else if (!this.enemies.some(enemy => enemy instanceof Hivewhale) && randomize < 0.7 && this.score > this.winningScore * 0.45) {
@@ -1136,7 +1137,7 @@ window.addEventListener("load", e => {
             } else if (!this.enemies.some(enemy => enemy instanceof Bulbwhale) && randomize < 0.8 && this.score > this.winningScore * 0.6) {
                 this.enemies.push(new Bulbwhale(this));
             } else if (!this.enemies.some(enemy => enemy instanceof Moonfish) && randomize < 0.9 && this.score > this.winningScore * 0.6) {
-                const randomize2 = Math.floor(Math.random()*4 + 1)
+                const randomize2 = Math.floor(Math.random() * 4 + 1)
                 for (let i = 0; i < randomize2; i++) {
                     this.enemies.push(new Moonfish(this));
                 }
@@ -1190,39 +1191,55 @@ window.addEventListener("load", e => {
 
     // Create progress bar element
     const progressBar = document.createElement('div');
-    progressBar.style.width = '0%';
-    progressBar.style.height = '20px';
+    progressBar.style.width = '50%';
+    progressBar.style.height = '10px';
     progressBar.style.backgroundColor = 'blue';
     progressBar.style.transition = 'width 0.5s ease';
-  
+    progressBar.style.margin = '0 auto';
+    progressBar.style.position = 'absolute';
+    progressBar.style.top = '50%';
+    progressBar.style.left = '50%';
+    progressBar.style.transform = 'translate(-50%, -50%)';
+
     // Create progress text element
     const progressText = document.createElement('div');
-    progressText.innerText = '0%';
-  
+    progressText.innerText = 'Loading...';
+progressText.style.textAlign = 'center';
+progressText.style.marginTop = '10px';
+progressText.style.position = 'absolute';
+progressText.style.top = '50%';
+progressText.style.left = '50%';
+progressText.style.transform = 'translate(-50%, -50%)';
+
     // Append progress bar and text to the document body
     document.body.appendChild(progressBar);
     document.body.appendChild(progressText);
-  
+
     function simulateGameLoad() {
-      let progress = 0;
-      const totalProgress = 100;
-      const loadingTime = 3000; // Adjust the loading time as per your requirement
-  
-      const interval = setInterval(() => {
-        progress += 10;
-        progressBar.style.width = `${progress}%`;
-        progressText.innerText = `${progress}%`;
-  
-        if (progress >= totalProgress) {
-          clearInterval(interval);
-          startGame();
-        }
-      }, loadingTime / totalProgress);
+        let progress = 0;
+        const totalProgress = 100;
+        const loadingTime = 3000; // Adjust the loading time as per your requirement
+
+        const interval = setInterval(() => {
+            progress += 10;
+            progressBar.style.width = `${progress}%`;
+            progressText.innerText = `Loading... ${progress}%`;
+
+            if (progress >= totalProgress) {
+                clearInterval(interval);
+                startGame();
+            }
+        }, loadingTime / totalProgress);
     }
-  
+
     function startGame() {
-      // Your game start logic here
-      console.log('Game started!');
+        // Your game start logic here
+        console.log('Game started!');
+
+        progressBar.parentNode.removeChild(progressBar);
+        progressText.parentNode.removeChild(progressText);
+        document.body.appendChild(canvas);
+
     }
 
 
