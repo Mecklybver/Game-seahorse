@@ -1126,7 +1126,7 @@ window.addEventListener("load", e => {
                 this.enemies.push(new Angler1(this));
             } else if (randomize < 0.4) {
                 this.enemies.push(new Angler2(this));
-            } else if (!this.enemies.some(enemy => enemy instanceof Stalker) && randomize < 0.5 && this.score > this.winningScore * 0.7) {
+            } else if (!this.enemies.some(enemy => enemy instanceof Stalker) && randomize < 0.5 && this.score > this.winningScore * 0.58) {
                 for (let i = 0; i < 3; i++) {
                     this.enemies.push(new Stalker(this));
                 }
@@ -1204,12 +1204,12 @@ window.addEventListener("load", e => {
     // Create progress text element
     const progressText = document.createElement('div');
     progressText.innerText = 'Loading...';
-progressText.style.textAlign = 'center';
-progressText.style.marginTop = '10px';
-progressText.style.position = 'absolute';
-progressText.style.top = '50%';
-progressText.style.left = '50%';
-progressText.style.transform = 'translate(-50%, -50%)';
+    progressText.style.textAlign = 'center';
+    progressText.style.marginTop = '10px';
+    progressText.style.position = 'absolute';
+    progressText.style.top = '50%';
+    progressText.style.left = '50%';
+    progressText.style.transform = 'translate(-50%, -50%)';
 
     // Append progress bar and text to the document body
     document.body.appendChild(progressBar);
@@ -1234,7 +1234,6 @@ progressText.style.transform = 'translate(-50%, -50%)';
 
     function startGame() {
         // Your game start logic here
-        console.log('Game started!');
 
         progressBar.parentNode.removeChild(progressBar);
         progressText.parentNode.removeChild(progressText);
