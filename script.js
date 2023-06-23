@@ -1205,7 +1205,7 @@ window.addEventListener("load", e => {
     const progressText = document.createElement('div');
     progressText.innerText = 'Loading...';
     progressText.style.textAlign = 'center';
-    progressText.style.marginTop = '10px';
+    progressText.style.marginTop = '40px';
     progressText.style.position = 'absolute';
     progressText.style.top = '50%';
     progressText.style.left = '50%';
@@ -1221,9 +1221,11 @@ window.addEventListener("load", e => {
         const loadingTime = 3000; // Adjust the loading time as per your requirement
 
         const interval = setInterval(() => {
-            progress += 10;
+            progress += 5;
             progressBar.style.width = `${progress}%`;
+            progressBar.style.right = `${100 - progress}%`;
             progressText.innerText = `Loading... ${progress}%`;
+            progressText.style.right = `${100 - progress}%`;
 
             if (progress >= totalProgress) {
                 clearInterval(interval);
