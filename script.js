@@ -10,6 +10,8 @@ canvas.height = 520;
 
 
 window.addEventListener("load", e => {
+
+    
     class ScoreAnimation {
         constructor(game, x, y, score, takePoints) {
             this.game = game;
@@ -133,8 +135,6 @@ window.addEventListener("load", e => {
     class InputHandler {
         constructor(game) {
             this.game = game;
-
-
             window.addEventListener("keydown", e => {
                 if ((e.key === "ArrowUp" ||
                     e.key === "ArrowDown" ||
@@ -368,12 +368,13 @@ window.addEventListener("load", e => {
           this.lives = 10;
           this.shield = false;
           this.alpha = 1;
-          this.previousPlayers = [];
+          this.previousPlayers = [];    
         }
       
         update(deltaTime) {
           this.lastShoot += deltaTime;
           if (this.powerUp) {
+
             if (this.alpha > 0.2) {
               this.alpha -= 0.01;
               this.alpha = Math.max(this.alpha, 0);
@@ -633,8 +634,8 @@ window.addEventListener("load", e => {
             this.score = this.lives;
             this.type = "drone";
             this.speedX = Math.random() * -4.2 - 4;
-            this.amplitude = Math.random() * 5 + 2
-            this.frequency = 0.2
+            this.amplitude = Math.random() * 5 + 3
+            this.frequency = 0.15
 
         }
     }
@@ -788,7 +789,7 @@ window.addEventListener("load", e => {
         }
 
         draw(context) {
-            if ((this.game.score < this.game.winningScore * 0.55 || (this.gameOver && this.game.score < this.game.winningScore)) && this.game.player.lives > 0) {
+            if ((this.game.score < this.game.winningScore * 0.6 || (this.gameOver && this.game.score < this.game.winningScore)) && this.game.player.lives > 0) {
                 context.globalAlpha = this.alpha;
                 this.layer1.draw(context);
                 context.globalAlpha = 1;
@@ -1182,6 +1183,47 @@ window.addEventListener("load", e => {
     animate(0);
 
 
+
+
+    ///Progress bar
+    simulateGameLoad();
+
+    // Create progress bar element
+    const progressBar = document.createElement('div');
+    progressBar.style.width = '0%';
+    progressBar.style.height = '20px';
+    progressBar.style.backgroundColor = 'blue';
+    progressBar.style.transition = 'width 0.5s ease';
+  
+    // Create progress text element
+    const progressText = document.createElement('div');
+    progressText.innerText = '0%';
+  
+    // Append progress bar and text to the document body
+    document.body.appendChild(progressBar);
+    document.body.appendChild(progressText);
+  
+    function simulateGameLoad() {
+      let progress = 0;
+      const totalProgress = 100;
+      const loadingTime = 3000; // Adjust the loading time as per your requirement
+  
+      const interval = setInterval(() => {
+        progress += 10;
+        progressBar.style.width = `${progress}%`;
+        progressText.innerText = `${progress}%`;
+  
+        if (progress >= totalProgress) {
+          clearInterval(interval);
+          startGame();
+        }
+      }, loadingTime / totalProgress);
+    }
+  
+    function startGame() {
+      // Your game start logic here
+      console.log('Game started!');
+    }
 
 
 
