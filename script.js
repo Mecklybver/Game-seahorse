@@ -149,7 +149,6 @@ window.addEventListener("load", e => {
                     this.game.player.powerUpLimit = Infinity
                 } else if (e.key === "q") {
                     this.game.gameSound = !this.game.gameSound;
-                    console.log(this.game.gameSound)
                 } else if (e.key === "s") {
                     this.game.player.shield = !this.game.player.shield
                     if (this.game.gameSound) this.game.sound.shield()
@@ -679,7 +678,7 @@ window.addEventListener("load", e => {
             this.type = "drone";
             this.speedX = Math.random() * -4.2 - 4;
             this.amplitude = Math.random() * 5 + 3
-            this.frequency = 0.15
+            this.frequency = Math.random() *0.1 + 0.1
 
         }
     }
@@ -726,10 +725,10 @@ window.addEventListener("load", e => {
             this.score = 20;
             this.type = "stalker";
             this.amplitude = 8;
-            this.speedX = -2;
+            this.speedX = Math.random()* -5 -2;
             this.followSpeed = 0.05;
-            this.amplitude = 8
-            this.frequency = 0.1
+            this.amplitude = Math.random()* 13 + 5
+            this.frequency = Math.random() *0.1 * 0.1
         }
 
         update(deltaTime) {
@@ -765,7 +764,9 @@ window.addEventListener("load", e => {
             this.type = "razorfin";
             this.followSpeed = 0.09;
             this.amplitude = Math.random() * 11 + 4
-            this.frequency = 0.01
+            this.frequency = Math.random()* 0.02 + 0.01
+            this.speedX = Math.random()* -2 -1.5;
+
         }
 
 
@@ -1037,6 +1038,7 @@ window.addEventListener("load", e => {
 
         update(deltaTime) {
             this.elapsedTime += deltaTime
+            console.log((this.elapsedTime / 1000).toFixed(1))
             if (this.gameSound && !this.sound.isBackgroundMusicPlaying()) {
                 if (!this.backgroundMusicStarted) {
                   this.sound.playBackgroundMusic();
@@ -1185,8 +1187,9 @@ window.addEventListener("load", e => {
                 this.enemies.push(new Angler1(this));
             } else if (randomize < 0.4) {
                 this.enemies.push(new Angler2(this));
-            } else if (!this.enemies.some(enemy => enemy instanceof Stalker) && randomize < 0.5 && this.score > this.winningScore * 0.58) {
-                for (let i = 0; i < 3; i++) {
+            } else if (!this.enemies.some(enemy => enemy instanceof Stalker) && randomize < 0.5 && this.score > this.winningScore * 0.56) {
+                const randomize3 = Math.floor(Math.random() * 5 + 3)
+                for (let i = 0; i < randomize3; i++) {
                     this.enemies.push(new Stalker(this));
                 }
             } else if (!this.enemies.some(enemy => enemy instanceof Razorfin) && randomize < 0.6 && this.score > this.winningScore * 0.1) {
@@ -1202,7 +1205,7 @@ window.addEventListener("load", e => {
                 }
             }
 
-            if (this.enemies.lenght >= 2 && this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.12 && this.elapsedTime >= 25000) {
+            if ((!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.53 && this.elapsedTime >= 20000) ||(!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1 && this.elapsedTime >= 30000) || this.enemies.lenght === 6 && this.elapsedTime >= 30000) {
                 this.enemies.push(new Lucky(this));
                 this.elapsedTime = 0;
             }
