@@ -1294,7 +1294,6 @@ window.addEventListener("load", e => {
     }
 
     function startGame() {
-        // Your game start logic here
 
         progressBar.parentNode.removeChild(progressBar);
         progressText.parentNode.removeChild(progressText);
