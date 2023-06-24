@@ -175,9 +175,54 @@ window.addEventListener("load", e => {
             this.powerDownSound = new Audio("./sounds/powerdown.wav")
             this.shieldSound = new Audio("./sounds/shield.wav")
             this.shotSound = new Audio("./sounds/shot.wav")
+            this.backgroundMusic = new Audio("./sounds/music.mp3");
+            this.audioctx = new AudioContext();
+            this.backgroundMusicBuffer = null;
+            this.source = null;
+        
+            this.loadSoundFile("./sounds/music.mp3").then((buffer) => {
+              this.backgroundMusicBuffer = buffer;
+              this.playBackgroundMusic();
+            });
+          }
+        
+          async loadSoundFile(url) {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            return this.audioctx.decodeAudioData(arrayBuffer);
+          }
+        
+          playSound(buffer) {
+            this.source = this.audioctx.createBufferSource();
+            this.source.buffer = buffer;
+            this.source.connect(this.audioctx.destination);
+            this.source.start(0);
+          }
+        
+          playBackgroundMusic() {
+            this.source = this.audioctx.createBufferSource();
+            this.source.buffer = this.backgroundMusicBuffer;
+            this.source.connect(this.audioctx.destination);
+            this.source.loop = true;
+            this.source.start();
+          }
+        
+          stopBackgroundMusic() {
+            if (this.source) {
+              this.source.stop();
+              this.source.disconnect();
+              this.source = null;
+            }
+          }
+        
+          isBackgroundMusicPlaying() {
+            return this.source && this.source.buffer && this.audioctx.state === "running";
+          }
+        
 
+        
+        
 
-        }
         powerUp() {
             this.powerUpSound.currentTime = 0;
             this.powerUpSound.play()
@@ -984,10 +1029,24 @@ window.addEventListener("load", e => {
             this.speed = 1;
             this.elapsedTime = 0
             this.gameSound = true
+            this.backgroundMusicStarted = false;
+
+
+
         }
 
         update(deltaTime) {
             this.elapsedTime += deltaTime
+            if (this.gameSound && !this.sound.isBackgroundMusicPlaying()) {
+                if (!this.backgroundMusicStarted) {
+                  this.sound.playBackgroundMusic();
+                  this.backgroundMusicStarted = true;
+                }
+              } else if (!this.gameSound && this.sound.isBackgroundMusicPlaying()) {
+                this.sound.stopBackgroundMusic();
+                this.backgroundMusicStarted = false;
+              }
+              
             if (this.player.lives === 0 && this.score < this.winningScore) this.gameOver = true;
             if (!this.gameOver) this.gameTime += deltaTime;
             if (this.gameTime > this.timeLimit) this.gameOver = true;
@@ -1143,7 +1202,7 @@ window.addEventListener("load", e => {
                 }
             }
 
-            if (!this.enemies>= 2 && this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.12 && this.elapsedTime >= 25000) {
+            if (this.enemies.lenght >= 2 && this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.12 && this.elapsedTime >= 25000) {
                 this.enemies.push(new Lucky(this));
                 this.elapsedTime = 0;
             }
@@ -1215,7 +1274,7 @@ window.addEventListener("load", e => {
     function simulateGameLoad() {
         let progress = 0;
         const totalProgress = 100;
-        const loadingTime = 5000; 
+        const loadingTime = 5000;
 
         const interval = setInterval(() => {
             progress += 5;
