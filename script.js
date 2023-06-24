@@ -1143,7 +1143,7 @@ window.addEventListener("load", e => {
                 }
             }
 
-            if (!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.12 && this.elapsedTime >= 25000) {
+            if (!this.enemies>= 2 && this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.12 && this.elapsedTime >= 25000) {
                 this.enemies.push(new Lucky(this));
                 this.elapsedTime = 0;
             }
@@ -1189,9 +1189,8 @@ window.addEventListener("load", e => {
     ///Progress bar
     simulateGameLoad();
 
-    // Create progress bar element
     const progressBar = document.createElement('div');
-    progressBar.style.width = '50%';
+    progressBar.style.width = '0%';
     progressBar.style.height = '10px';
     progressBar.style.backgroundColor = 'blue';
     progressBar.style.transition = 'width 0.5s ease';
@@ -1201,7 +1200,6 @@ window.addEventListener("load", e => {
     progressBar.style.left = '50%';
     progressBar.style.transform = 'translate(-50%, -50%)';
 
-    // Create progress text element
     const progressText = document.createElement('div');
     progressText.innerText = 'Loading...';
     progressText.style.textAlign = 'center';
@@ -1211,14 +1209,13 @@ window.addEventListener("load", e => {
     progressText.style.left = '50%';
     progressText.style.transform = 'translate(-50%, -50%)';
 
-    // Append progress bar and text to the document body
     document.body.appendChild(progressBar);
     document.body.appendChild(progressText);
 
     function simulateGameLoad() {
         let progress = 0;
         const totalProgress = 100;
-        const loadingTime = 3000; // Adjust the loading time as per your requirement
+        const loadingTime = 5000; 
 
         const interval = setInterval(() => {
             progress += 5;
