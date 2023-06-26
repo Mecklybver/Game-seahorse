@@ -176,6 +176,7 @@ window.addEventListener("load", e => {
             this.shotSound = new Audio("./sounds/shot.wav")
             this.backgroundMusic = new Audio("./sounds/music.mp3");
             this.audioctx = new AudioContext();
+            this.volume = this.audioctx.createGain()
             this.backgroundMusicBuffer = null;
             this.source = null;
         
@@ -191,17 +192,14 @@ window.addEventListener("load", e => {
             return this.audioctx.decodeAudioData(arrayBuffer);
           }
         
-          playSound(buffer) {
-            this.source = this.audioctx.createBufferSource();
-            this.source.buffer = buffer;
-            this.source.connect(this.audioctx.destination);
-            this.source.start(0);
-          }
+         
         
           playBackgroundMusic() {
             this.source = this.audioctx.createBufferSource();
             this.source.buffer = this.backgroundMusicBuffer;
-            this.source.connect(this.audioctx.destination);
+            this.source.connect(this.volume);
+            this.volume.gain.value = 0.4
+            this.volume.connect(this.audioctx.destination)
             this.source.loop = true;
             this.source.start();
           }
@@ -404,7 +402,7 @@ window.addEventListener("load", e => {
             this.imgPlayer.src = "./player/player.png";
             this.powerUp = false;
             this.powerUpTimer = 0;
-            this.powerUpLimit = 12000;
+            this.powerUpLimit = Math.random()* 10000 + 5000;
             this.elapsedTime = 0;
             this.shootDelay = 150;
             this.lastShoot = 0;
@@ -642,6 +640,7 @@ window.addEventListener("load", e => {
             this.frameY = Math.floor(Math.random() * 2);
             this.lives = 6;
             this.score = 15;
+            this.speedX = Math.random()* -3 -1.5
             this.speedY = Math.sin((this.game.speed + this.x) * 0.9);
             this.amplitude = Math.random() * 3.5 + 0.5
 
@@ -1017,7 +1016,6 @@ window.addEventListener("load", e => {
             this.confettis = []
             this.explosions = []
             this.enemyTimer = 0;
-            this.enemyInterval = 1000;
             this.ammo = 80;
             this.ammoInterval = 800;
             this.ammoTimer = 0;
@@ -1025,6 +1023,7 @@ window.addEventListener("load", e => {
             this.gameOver = false;
             this.score = 0;
             this.winningScore = 1000;
+            this.enemyInterval = 1000
             this.gameTime = 0;
             this.timeLimit = 500000;
             this.speed = 1;
@@ -1037,8 +1036,9 @@ window.addEventListener("load", e => {
         }
 
         update(deltaTime) {
+            this.enemyInterval = Math.random() * (1400 - this.score) + 600;
+
             this.elapsedTime += deltaTime
-            console.log((this.elapsedTime / 1000).toFixed(1))
             if (this.gameSound && !this.sound.isBackgroundMusicPlaying()) {
                 if (!this.backgroundMusicStarted) {
                   this.sound.playBackgroundMusic();
@@ -1205,7 +1205,7 @@ window.addEventListener("load", e => {
                 }
             }
 
-            if ((!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.53 && this.elapsedTime >= 20000) ||(!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1 && this.elapsedTime >= 30000) || this.enemies.lenght === 6 && this.elapsedTime >= 30000) {
+            if ((!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.53 && this.elapsedTime >= 20000) ||(!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1 && this.elapsedTime >= 30000 && this.enemies.length >= 2) || this.enemies.lenght === 6 && this.elapsedTime >= 30000) {
                 this.enemies.push(new Lucky(this));
                 this.elapsedTime = 0;
             }
