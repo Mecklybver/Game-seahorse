@@ -3,15 +3,13 @@ const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 // canvas.width = window.innerWidth;
 // canvas.height = window.innerHeight;
-const sizeWidth = 1220
-const sizeHeight = 520
+const scale = window.devicePixelRatio
 
-const scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
-console.log(scale)
-canvas.width = Math.floor(sizeWidth * scale);
-canvas.height = Math.floor(sizeHeight * scale);
-// canvas.width = 1220;
-// canvas.height = 520;
+canvas.width = Math.floor(1220 * scale);
+canvas.height = Math.floor(520 * scale);
+
+
+
 
 
 
@@ -39,8 +37,8 @@ window.addEventListener("load", e => {
         update(deltaTime) {
             this.elapsedTime += deltaTime;
 
-            const targetX = 70;
-            const targetY = 30;
+            const targetX = 70 * scale;
+            const targetY = 30 * scale;
 
             const distance = Math.hypot(targetX - this.x, targetY - this.y);
 
@@ -90,7 +88,7 @@ window.addEventListener("load", e => {
     class Confetti {
         constructor(game) {
             this.game = game;
-            this.radius = Math.random() * 8 + 2;
+            this.radius = scale * Math.random() * 8 + 2;
             this.colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00"];
             this.angle = Math.random() * Math.PI * 2;
             this.speed = Math.random() * 3 + 1;
@@ -148,12 +146,13 @@ window.addEventListener("load", e => {
                     e.key === "ArrowLeft" ||
                     e.key === "ArrowRight" ||
                     e.key === " ")
-                    && !this.game.keys.has(e.key) ) {
+                    && !this.game.keys.has(e.key)) {
                     this.game.keys.add(e.key);
                 } else if (e.key === "F2") {
                     this.game.debug = !this.game.debug
                 } else if (e.key === "p") {
                     this.game.player.powerUp = !this.game.player.powerUp
+                    this.game.sound.powerUp()
                     this.game.player.powerUpLimit = Infinity
                 } else if (e.key === "q") {
                     this.game.gameSound = !this.game.gameSound;
@@ -165,7 +164,7 @@ window.addEventListener("load", e => {
 
             });
             window.addEventListener("keyup", e => {
-                if (this.game.keys.has(e.key) ) {
+                if (this.game.keys.has(e.key)) {
                     this.game.keys.delete(e.key)
                 }
 
@@ -302,8 +301,8 @@ window.addEventListener("load", e => {
                 this.height,
                 this.game.player.x,
                 this.game.player.y,
-                this.width*scale,
-                this.height*scale
+                this.width,
+                this.height
             );
         }
 
@@ -320,7 +319,7 @@ window.addEventListener("load", e => {
             this.y = y;
             this.width = 36.25;
             this.height = 20;
-            this.speed = 6;
+            this.speed = 9;
             this.markedForDeletion = false;
             this.image = new Image();
             this.image.src = "./effects/projectile.png"
@@ -489,7 +488,7 @@ window.addEventListener("load", e => {
         draw(context) {
             context.save();
 
-            if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height*scale);
+            if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height * scale);
 
             this.projectiles.forEach(projectile => {
                 projectile.draw(context);
@@ -522,7 +521,7 @@ window.addEventListener("load", e => {
                 this.x,
                 this.y,
                 this.width * scale,
-                this.height *scale
+                this.height * scale
             );
 
             context.restore();
@@ -534,7 +533,7 @@ window.addEventListener("load", e => {
             if (this.game.ammo > 0 && this.lastShoot > this.shootDelay) {
                 this.lastShoot = 0;
                 if (this.game.gameSound) this.game.sound.shot()
-                this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 30))
+                this.projectiles.push(new Projectile(this.game, this.x + 100 * scale, this.y + 30 * scale))
                 this.game.ammo--;
                 if (this.powerUp) this.shootBottom();
             }
@@ -542,7 +541,7 @@ window.addEventListener("load", e => {
         }
         shootBottom() {
 
-            this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 175))
+            this.projectiles.push(new Projectile(this.game, this.x + 100 * scale, this.y + 175 * scale))
 
         }
         enterPowerUp() {
@@ -585,7 +584,7 @@ window.addEventListener("load", e => {
         draw(context) {
             context.save()
             context.strokeStyle = "red";
-            if (this.game.debug) context.strokeRect(this.x, this.y, this.width* scale, this.height*scale);
+            if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height * scale);
             context.drawImage(this.imgEnemy,
                 this.frameX * this.width,
                 this.frameY * this.height,
@@ -597,9 +596,9 @@ window.addEventListener("load", e => {
                 this.height * scale)
             context.fillStyle = "black"
             context.font = "30px Helvetica"
-            if (this.game.debug) context.fillText(this.lives, this.x , this.y)
-            if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height)
-            if (this.game.debug) context.fillText(this.frameY, this.x + this.width, this.y + this.height)
+            if (this.game.debug) context.fillText(this.lives, this.x, this.y)
+            if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height * scale)
+            if (this.game.debug) context.fillText(this.frameY, this.x + this.width * scale, this.y + this.height * scale)
 
             context.restore()
         }
@@ -860,8 +859,8 @@ window.addEventListener("load", e => {
             this.game = game;
             this.spriteHeight = 200;
             this.spriteWidth = 200;
-            this.width = this.spriteWidth * scale;
-            this.height = this.spriteHeight * scale;
+            this.width = this.spriteWidth;
+            this.height = this.spriteHeight;
             this.x = x - this.width * 0.5;
             this.y = y - this.height * 0.5;
             this.frameX = 0;
@@ -893,8 +892,8 @@ window.addEventListener("load", e => {
                 this.spriteHeight,
                 this.x,
                 this.y,
-                this.width* scale,
-                this.height * scale
+                this.width,
+                this.height
             );
         }
     }
@@ -920,7 +919,7 @@ window.addEventListener("load", e => {
     class UI {
         constructor(game) {
             this.game = game;
-            this.fontSize = 25;
+            this.fontSize = 25 * scale;
             this.fontFamily = "Helvetica";
             this.color = "white"
             this.x = 20;
@@ -945,23 +944,26 @@ window.addEventListener("load", e => {
             context.shadowOffsetY = 3;
             context.shadowColor = "black";
             context.fillStyle = this.color;
-            context.font = `${this.fontSize * scale}px ${this.fontFamily}`;
-            context.fillText(`Score:  ${this.game.score}`, this.x *scale, this.y *scale)
+            context.font = `${this.fontSize}px ${this.fontFamily}`;
+            context.fillText(`Score:  ${this.game.score}`, this.x * scale, this.y * scale)
             context.shadowBlur = 3;
 
 
             // timer
             const formattedTime = this.game.gameTime * 0.001
             const formattedTimeseconds = (formattedTime % 60).toFixed(1)
-            if (formattedTime <= 60) {
-                context.fillText(`Timer: ${formattedTimeseconds}`, 20*scale, 100 *scale)
+            if (formattedTime <= 10) {
+                context.fillText(`Timer: 0${formattedTimeseconds}`, 20 * scale, 100 * scale)
+            }
+            else if (formattedTime <= 60) {
+                context.fillText(`Timer: ${formattedTimeseconds}`, 20 * scale, 100 * scale)
             } else {
                 const formattedTimeminutes = Math.floor(formattedTime / 60)
-                context.fillText(`Timer: ${formattedTimeminutes}:${formattedTimeseconds}`, 20*scale, 100*scale)
+                context.fillText(`Timer: ${formattedTimeminutes}:${formattedTimeseconds}`, 20 * scale, 100 * scale)
 
             }
-            context.fillText(`Time limit ${(this.game.timeLimit * 0.00001).toFixed(2)} minutes`, this.game.width - 400 *scale, 80 *scale)
-            context.fillText(`Winning Score ${this.game.winningScore} points`, this.game.width - 420 *scale, 110*scale)
+            context.fillText(`Time limit ${(this.game.timeLimit * 0.00001).toFixed(2)} minutes`, this.game.width - 400 * scale, 80 * scale)
+            context.fillText(`Winning Score ${this.game.winningScore} points`, this.game.width - 420 * scale, 110 * scale)
 
 
             //gameOver message
@@ -977,26 +979,28 @@ window.addEventListener("load", e => {
                     message1 = "You lose!";
                     message2 = "Try again next time!";
                 }
-                context.font = `150px ${this.fontFamily}`;
-                context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 40);
-                context.font = `125px ${this.fontFamily}`;
-                context.fillText(message2, this.game.width * 0.5, this.game.height * 0.5 + 40)
+                let fontSize = 130
+                let fontSize2 = 110
+                context.font = `${fontSize * scale}px ${this.fontFamily}`;
+                context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 60 * scale);
+                context.font = `${fontSize2 * scale}pxpx ${this.fontFamily}`;
+                context.fillText(message2, this.game.width * 0.5, this.game.height * 0.5 + 60 * scale)
             }
             const ammoColor = this.game.player.powerUp ? "#ffffbd" : this.color;
             context.fillStyle = ammoColor;
             for (let i = 0; i < this.game.ammo; i++) {
-                context.fillRect(30 + 5 * i * scale, 50 *scale, 3 * scale, 23 *scale)
+                context.fillRect(30 + 5 * i * scale, 50 * scale, 3 * scale, 20 * scale)
             }
             context.restore()
             // Player's life level
             const livesIconWidth = 40;
             const livesIconHeight = 40;
-            const livesSpacing = 10 * scale;
+            const livesSpacing = 10;
 
             for (let i = 0; i < this.game.player.lives; i++) {
-                this.lifeIconX = context.canvas.width * 0.6 + (i + 1) * (livesIconWidth + livesSpacing);
+                this.lifeIconX = context.canvas.width * 0.5 + (i + 1) * (livesIconWidth * scale + livesSpacing * scale);
                 this.lifeIconY = 10 + Math.sin((this.elapsedTime + i * 200) / 300) * 5;
-               
+
 
                 context.drawImage(
                     this.game.player.imgPlayer,
@@ -1011,16 +1015,16 @@ window.addEventListener("load", e => {
             }
 
         }
-        update(deltaTime){
+        update(deltaTime) {
             this.powerUp = this.game.player.powerUp
             this.frameY = this.game.player.frameY
             this.previousPlayers = this.game.player.previousPlayers
             this.elapsedTime += deltaTime
-            this.lifeIconY =10 + Math.sin(0.001* this.elapsedTime ) * 5 
-            
-          
-          
-            this.frameX ++
+            this.lifeIconY = 10 + Math.sin(0.001 * this.elapsedTime) * 5
+
+
+
+            this.frameX++
             this.frameX %= this.maxFrame
         }
 
@@ -1028,6 +1032,8 @@ window.addEventListener("load", e => {
     }
     class Game {
         constructor(width, height) {
+            this.earthquake = false
+            this.earthquakeTime = 0
             this.debug = false;
             this.width = width;
             this.height = height;
@@ -1064,6 +1070,7 @@ window.addEventListener("load", e => {
         }
 
         update(deltaTime) {
+            if (this.earthquake) this.earthquakeTime += deltaTime
             this.enemyInterval = Math.random() * (1400 - this.score) + 600;
             this.elapsedTime += deltaTime
             if (this.gameSound && !this.sound.isBackgroundMusicPlaying()) {
@@ -1096,6 +1103,7 @@ window.addEventListener("load", e => {
             this.enemies.forEach(enemy => {
                 enemy.update(deltaTime);
                 if (this.checkCollision(this.player, enemy)) {
+                    game.earthquake = true
                     if (this.gameSound) this.sound.explosion();
                     if (this.gameSound) this.sound.hit();
                     if (!this.player.shield) this.player.lives--
@@ -1124,6 +1132,12 @@ window.addEventListener("load", e => {
                         if (this.score < 0) this.score = 0
                         this.scoreAnimations.push(scoreAnimation);
                     }
+
+                  
+
+
+
+                   
                 }
                 this.player.projectiles.forEach(projectile => {
                     if (this.checkCollision(projectile, enemy)) {
@@ -1249,36 +1263,55 @@ window.addEventListener("load", e => {
         }
         checkCollision(rect1, rect2) {
             return (
-                rect1.x < rect2.x + rect2.width &&
-                rect1.x + rect1.width > rect2.x &&
-                rect1.y < rect2.y + rect2.height &&
-                rect1.y + rect1.height > rect2.y
+                rect1.x < rect2.x + rect2.width * scale &&
+                rect1.x + rect1.width * scale > rect2.x &&
+                rect1.y < rect2.y + rect2.height * scale &&
+                rect1.y + rect1.height * scale > rect2.y
             );
         }
     }
 
     const game = new Game(canvas.width, canvas.height)
 
-    let lastTime = 0
-    function animate(timeStamp) {
-        const deltaTime = timeStamp - lastTime
-        lastTime = timeStamp
+const intensity = 15; // Adjust as needed
+let duration = 800; // Adjust as needed
+let startTime = 0;
+
+function animate(timeStamp) {
+    const deltaTime = timeStamp - startTime;
+    startTime = timeStamp;
+    let elapsedTime = 0
+
+    if (game.earthquake) {
+        if (game.earthquakeTime < duration) {
+            const offsetX = Math.random() * intensity * 2 - intensity;
+            const offsetY = Math.random() * intensity * 2 - intensity;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(offsetX, offsetY);
+            game.draw(ctx);
+            game.update(deltaTime);
+            ctx.restore();
+            requestAnimationFrame(animate);
+        } else {
+            game.earthquake = false;
+            game.earthquakeTime = 0
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            game.draw(ctx);
+            game.update(deltaTime);
+            requestAnimationFrame(animate);
+        }
+    } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      
-
-
-
         game.draw(ctx);
         game.update(deltaTime);
-        requestAnimationFrame(animate)
-        
+        requestAnimationFrame(animate);
     }
+}
 
-    animate(0);
+animate(0);
 
-
-
+    
 
     ///Progress bar
     simulateGameLoad();
