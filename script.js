@@ -3,8 +3,15 @@ const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 // canvas.width = window.innerWidth;
 // canvas.height = window.innerHeight;
-canvas.width = 1220;
-canvas.height = 520;
+const sizeWidth = 1220
+const sizeHeight = 520
+
+const scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
+console.log(scale)
+canvas.width = Math.floor(sizeWidth * scale);
+canvas.height = Math.floor(sizeHeight * scale);
+// canvas.width = 1220;
+// canvas.height = 520;
 
 
 
@@ -295,8 +302,8 @@ window.addEventListener("load", e => {
                 this.height,
                 this.game.player.x,
                 this.game.player.y,
-                this.width,
-                this.height
+                this.width*scale,
+                this.height*scale
             );
         }
 
@@ -341,7 +348,7 @@ window.addEventListener("load", e => {
 
             context.fillStyle = "yellow"
             // context.fillRect(this.x, this.y, this.width, this.height)
-            context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height)
+            context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height, this.x, this.y, this.width * scale, this.height * scale)
         }
     }
     class Particle {
@@ -381,7 +388,7 @@ window.addEventListener("load", e => {
             context.save()
             context.translate(this.x, this.y)
             context.rotate(this.angle)
-            context.drawImage(this.imageGear, this.frameX * this.spriteSize, this.frameY * this.spriteSize, this.spriteSize, this.spriteSize, this.size * -0.5, this.size * -0.5, this.size, this.size)
+            context.drawImage(this.imageGear, this.frameX * this.spriteSize, this.frameY * this.spriteSize, this.spriteSize, this.spriteSize, this.size * -0.5, this.size * -0.5, this.size * scale, this.size * scale)
             context.restore()
         }
     }
@@ -482,7 +489,7 @@ window.addEventListener("load", e => {
         draw(context) {
             context.save();
 
-            if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
+            if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height*scale);
 
             this.projectiles.forEach(projectile => {
                 projectile.draw(context);
@@ -499,8 +506,8 @@ window.addEventListener("load", e => {
                         this.height,
                         prevPlayer.x,
                         prevPlayer.y,
-                        this.width,
-                        this.height
+                        this.width * scale,
+                        this.height * scale
                     );
                 });
             }
@@ -514,8 +521,8 @@ window.addEventListener("load", e => {
                 this.height,
                 this.x,
                 this.y,
-                this.width,
-                this.height
+                this.width * scale,
+                this.height *scale
             );
 
             context.restore();
@@ -578,7 +585,7 @@ window.addEventListener("load", e => {
         draw(context) {
             context.save()
             context.strokeStyle = "red";
-            if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
+            if (this.game.debug) context.strokeRect(this.x, this.y, this.width* scale, this.height*scale);
             context.drawImage(this.imgEnemy,
                 this.frameX * this.width,
                 this.frameY * this.height,
@@ -586,11 +593,11 @@ window.addEventListener("load", e => {
                 this.height,
                 this.x,
                 this.y,
-                this.width,
-                this.height)
+                this.width * scale,
+                this.height * scale)
             context.fillStyle = "black"
             context.font = "30px Helvetica"
-            if (this.game.debug) context.fillText(this.lives, this.x, this.y)
+            if (this.game.debug) context.fillText(this.lives, this.x , this.y)
             if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height)
             if (this.game.debug) context.fillText(this.frameY, this.x + this.width, this.y + this.height)
 
@@ -778,8 +785,8 @@ window.addEventListener("load", e => {
             this.game = game;
             this.image = image;
             this.speedModifier = speedModifier;
-            this.width = 1768;
-            this.height = 600;
+            this.width = 1768 * scale;
+            this.height = 600 * scale;
             this.x = 0;
             this.y = 0;
         }
@@ -853,8 +860,8 @@ window.addEventListener("load", e => {
             this.game = game;
             this.spriteHeight = 200;
             this.spriteWidth = 200;
-            this.width = this.spriteWidth;
-            this.height = this.spriteHeight;
+            this.width = this.spriteWidth * scale;
+            this.height = this.spriteHeight * scale;
             this.x = x - this.width * 0.5;
             this.y = y - this.height * 0.5;
             this.frameX = 0;
@@ -886,8 +893,8 @@ window.addEventListener("load", e => {
                 this.spriteHeight,
                 this.x,
                 this.y,
-                this.width,
-                this.height
+                this.width* scale,
+                this.height * scale
             );
         }
     }
@@ -938,8 +945,8 @@ window.addEventListener("load", e => {
             context.shadowOffsetY = 3;
             context.shadowColor = "black";
             context.fillStyle = this.color;
-            context.font = `${this.fontSize}px ${this.fontFamily}`;
-            context.fillText(`Score:  ${this.game.score}`, this.x, this.y)
+            context.font = `${this.fontSize * scale}px ${this.fontFamily}`;
+            context.fillText(`Score:  ${this.game.score}`, this.x *scale, this.y *scale)
             context.shadowBlur = 3;
 
 
@@ -947,14 +954,14 @@ window.addEventListener("load", e => {
             const formattedTime = this.game.gameTime * 0.001
             const formattedTimeseconds = (formattedTime % 60).toFixed(1)
             if (formattedTime <= 60) {
-                context.fillText(`Timer: ${formattedTimeseconds}`, 20, 100)
+                context.fillText(`Timer: ${formattedTimeseconds}`, 20*scale, 100 *scale)
             } else {
                 const formattedTimeminutes = Math.floor(formattedTime / 60)
-                context.fillText(`Timer: ${formattedTimeminutes}:${formattedTimeseconds}`, 20, 100)
+                context.fillText(`Timer: ${formattedTimeminutes}:${formattedTimeseconds}`, 20*scale, 100*scale)
 
             }
-            context.fillText(`Time limit ${(this.game.timeLimit * 0.00001).toFixed(2)} minutes`, this.game.width - 400, 80)
-            context.fillText(`Winning Score ${this.game.winningScore} points`, this.game.width - 420, 110)
+            context.fillText(`Time limit ${(this.game.timeLimit * 0.00001).toFixed(2)} minutes`, this.game.width - 400 *scale, 80 *scale)
+            context.fillText(`Winning Score ${this.game.winningScore} points`, this.game.width - 420 *scale, 110*scale)
 
 
             //gameOver message
@@ -970,24 +977,24 @@ window.addEventListener("load", e => {
                     message1 = "You lose!";
                     message2 = "Try again next time!";
                 }
-                context.font = `50px ${this.fontFamily}`;
+                context.font = `150px ${this.fontFamily}`;
                 context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 40);
-                context.font = `25px ${this.fontFamily}`;
+                context.font = `125px ${this.fontFamily}`;
                 context.fillText(message2, this.game.width * 0.5, this.game.height * 0.5 + 40)
             }
             const ammoColor = this.game.player.powerUp ? "#ffffbd" : this.color;
             context.fillStyle = ammoColor;
             for (let i = 0; i < this.game.ammo; i++) {
-                context.fillRect(20 + 5 * i, 50, 3, 20)
+                context.fillRect(30 + 5 * i * scale, 50 *scale, 3 * scale, 23 *scale)
             }
             context.restore()
             // Player's life level
             const livesIconWidth = 40;
             const livesIconHeight = 40;
-            const livesSpacing = 10;
+            const livesSpacing = 10 * scale;
 
             for (let i = 0; i < this.game.player.lives; i++) {
-                this.lifeIconX = context.canvas.width * 0.5 + (i + 1) * (livesIconWidth + livesSpacing);
+                this.lifeIconX = context.canvas.width * 0.6 + (i + 1) * (livesIconWidth + livesSpacing);
                 this.lifeIconY = 10 + Math.sin((this.elapsedTime + i * 200) / 300) * 5;
                
 
@@ -999,8 +1006,8 @@ window.addEventListener("load", e => {
                     this.game.player.height,
                     this.lifeIconX,
                     this.lifeIconY,
-                    livesIconWidth,
-                    livesIconHeight)
+                    livesIconWidth * scale,
+                    livesIconHeight * scale)
             }
 
         }
@@ -1252,15 +1259,20 @@ window.addEventListener("load", e => {
 
     const game = new Game(canvas.width, canvas.height)
 
-
     let lastTime = 0
     function animate(timeStamp) {
         const deltaTime = timeStamp - lastTime
         lastTime = timeStamp
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      
+
+
+
         game.draw(ctx);
         game.update(deltaTime);
         requestAnimationFrame(animate)
+        
     }
 
     animate(0);
