@@ -13,8 +13,8 @@ canvas.height = Math.floor(520 * scale);
 
 
 
-window.addEventListener("load", e => {
 
+window.addEventListener("load", e => {
 
 
     class ScoreAnimation {
@@ -97,7 +97,8 @@ window.addEventListener("load", e => {
             this.minGrowth = 0.01
             this.growth = Math.random() * this.maxGrowth + this.minGrowth
             this.alpha = 1;
-            this.fall = Math.random() * 0.1 + 0.002
+            this.fall = Math.random() * 0.2 + 0.005
+            this.markedForDeletion = false
 
 
             this.x = Math.random() * this.game.width;
@@ -301,8 +302,8 @@ window.addEventListener("load", e => {
                 this.height,
                 this.game.player.x,
                 this.game.player.y,
-                this.width,
-                this.height
+                this.width * scale,
+                this.height * scale
             );
         }
 
@@ -850,9 +851,6 @@ window.addEventListener("load", e => {
             this.layer4.draw(context);
         }
 
-
-
-
     }
     class Explosion {
         constructor(game, x, y) {
@@ -892,8 +890,8 @@ window.addEventListener("load", e => {
                 this.spriteHeight,
                 this.x,
                 this.y,
-                this.width,
-                this.height
+                this.width * scale,
+                this.height * scale
             );
         }
     }
@@ -934,10 +932,15 @@ window.addEventListener("load", e => {
             this.powerUp = this.game.player.powerUp
             this.previousPlayers = this.game.player.previousPlayers
             this.elapsedTime = 0
+            this.shield = this.game.player.shield
+            this.frameXshield = this.game.shield.frameX
+            this.maxFrameShield = this.game.shield.maxFrame
+            this.shieldImage = this.game.shield.image
+
+
 
         }
         draw(context) {
-
             //score
             context.save()
             context.shadowOffsetX = 3;
@@ -1001,6 +1004,9 @@ window.addEventListener("load", e => {
                 this.lifeIconX = context.canvas.width * 0.5 + (i + 1) * (livesIconWidth * scale + livesSpacing * scale);
                 this.lifeIconY = 10 + Math.sin((this.elapsedTime + i * 200) / 300) * 5;
 
+                const staggeredFrameXshield = (this.frameXshield + i * 2) % this.maxFrameShield;
+
+
 
                 context.drawImage(
                     this.game.player.imgPlayer,
@@ -1012,15 +1018,35 @@ window.addEventListener("load", e => {
                     this.lifeIconY,
                     livesIconWidth * scale,
                     livesIconHeight * scale)
+
+                if (this.shield) {
+                    context.drawImage(
+                        this.shieldImage,
+                        staggeredFrameXshield * this.width,
+                        0,
+                        this.game.player.width,
+                        this.game.player.height,
+                        this.lifeIconX,
+                        this.lifeIconY,
+                        livesIconWidth * scale,
+                        livesIconHeight * scale)
+                }
             }
+
 
         }
         update(deltaTime) {
+            this.shield = this.game.player.shield
             this.powerUp = this.game.player.powerUp
             this.frameY = this.game.player.frameY
             this.previousPlayers = this.game.player.previousPlayers
             this.elapsedTime += deltaTime
             this.lifeIconY = 10 + Math.sin(0.001 * this.elapsedTime) * 5
+
+
+
+            this.frameXshield++;
+            this.frameXshield %= this.maxFrameShield;
 
 
 
@@ -1047,6 +1073,7 @@ window.addEventListener("load", e => {
             this.scoreAnimations = [];
             this.enemies = []
             this.particles = []
+            this.numberOfConfettis = 500
             this.confettis = []
             this.explosions = []
             this.enemyTimer = 0;
@@ -1133,11 +1160,11 @@ window.addEventListener("load", e => {
                         this.scoreAnimations.push(scoreAnimation);
                     }
 
-                  
 
 
 
-                   
+
+
                 }
                 this.player.projectiles.forEach(projectile => {
                     if (this.checkCollision(projectile, enemy)) {
@@ -1197,11 +1224,13 @@ window.addEventListener("load", e => {
 
             this.confettis.forEach(confetti => {
                 confetti.update(deltaTime);
+                if (confetti.alpha === 0 || confetti.y > canvas.height + 10 || confetti.x < -5 || confetti.x > canvas.width + 10) {
+                    confetti.markedForDeletion = true;
+                }
+
             });
 
-            this.confettis = this.confettis.filter(confetti => {
-                return confetti.alpha > 0;
-            });
+            this.confettis = this.confettis.filter(confetti => !confetti.markedForDeletion);
             this.scoreAnimations.forEach(animation => {
                 animation.update(deltaTime);
             });
@@ -1273,45 +1302,42 @@ window.addEventListener("load", e => {
 
     const game = new Game(canvas.width, canvas.height)
 
-const intensity = 15; // Adjust as needed
-let duration = 800; // Adjust as needed
-let startTime = 0;
+    const intensity = 15; // Adjust as needed
+    let duration = 800; // Adjust as needed
+    let startTime = 0;
+    function animate(timeStamp) {
+        const deltaTime = timeStamp - startTime;
+        startTime = timeStamp;
 
-function animate(timeStamp) {
-    const deltaTime = timeStamp - startTime;
-    startTime = timeStamp;
-    let elapsedTime = 0
-
-    if (game.earthquake) {
-        if (game.earthquakeTime < duration) {
-            const offsetX = Math.random() * intensity * 2 - intensity;
-            const offsetY = Math.random() * intensity * 2 - intensity;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.translate(offsetX, offsetY);
-            game.draw(ctx);
-            game.update(deltaTime);
-            ctx.restore();
-            requestAnimationFrame(animate);
+        if (game.earthquake && !game.player.shield) {
+            if (game.earthquakeTime < duration) {
+                const offsetX = Math.random() * intensity * 2 - intensity;
+                const offsetY = Math.random() * intensity * 2 - intensity;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                ctx.translate(offsetX, offsetY);
+                game.draw(ctx);
+                game.update(deltaTime);
+                ctx.restore();
+                requestAnimationFrame(animate);
+            } else {
+                game.earthquake = false;
+                game.earthquakeTime = 0
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                game.draw(ctx);
+                game.update(deltaTime);
+                requestAnimationFrame(animate);
+            }
         } else {
-            game.earthquake = false;
-            game.earthquakeTime = 0
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             game.draw(ctx);
             game.update(deltaTime);
             requestAnimationFrame(animate);
         }
-    } else {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        game.draw(ctx);
-        game.update(deltaTime);
-        requestAnimationFrame(animate);
     }
-}
 
-animate(0);
 
-    
+
 
     ///Progress bar
     simulateGameLoad();
@@ -1359,14 +1385,22 @@ animate(0);
     }
 
     function startGame() {
-
+        const button = document.createElement("button")
+        document.body.appendChild(button)
+        button.textContent = "Start"
         progressBar.parentNode.removeChild(progressBar);
         progressText.parentNode.removeChild(progressText);
-        document.body.appendChild(canvas);
+        document.body.appendChild(button)
+        button.addEventListener("click", e => {
+            document.body.removeChild(button)
+            document.body.appendChild(canvas);
+            animate(0);
+
+
+
+        })
 
     }
-
-
 
 })
 

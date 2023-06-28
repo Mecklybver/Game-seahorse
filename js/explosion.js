@@ -1,3 +1,6 @@
+import { scale } from "../script2.js";
+
+
 class Explosion {
     constructor(game, x, y) {
         this.game = game;
@@ -36,8 +39,8 @@ class Explosion {
             this.spriteHeight,
             this.x,
             this.y,
-            this.width,
-            this.height
+            this.width * scale,
+            this.height * scale
         );
     }
 }

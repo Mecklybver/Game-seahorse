@@ -1,7 +1,10 @@
+import { scale } from "../script2.js";
+
+
 export class Confetti {
     constructor(game) {
         this.game = game;
-        this.radius = Math.random() * 8 + 2;
+        this.radius = scale * Math.random() * 8 + 2;
         this.colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00"];
         this.angle = Math.random() * Math.PI * 2;
         this.speed = Math.random() * 3 + 1;
@@ -10,7 +13,8 @@ export class Confetti {
         this.minGrowth = 0.01
         this.growth = Math.random() * this.maxGrowth + this.minGrowth
         this.alpha = 1;
-        this.fall = Math.random() * 0.1 + 0.002
+        this.fall = Math.random() * 0.2 + 0.005
+        this.markedForDeletion = false
 
 
         this.x = Math.random() * this.game.width;

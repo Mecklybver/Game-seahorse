@@ -1,10 +1,12 @@
+import { scale } from "../script2.js";
+
 class Layer {
     constructor(game, image, speedModifier) {
         this.game = game;
         this.image = image;
         this.speedModifier = speedModifier;
-        this.width = 1768;
-        this.height = 600;
+        this.width = 1768 * scale;
+        this.height = 600 * scale;
         this.x = 0;
         this.y = 0;
     }
@@ -68,6 +70,7 @@ class Background {
         this.layers.forEach(layer => layer.draw(context));
         this.layer4.draw(context);
     }
+
 }
 
 export {

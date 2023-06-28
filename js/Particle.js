@@ -1,3 +1,6 @@
+import { scale } from "../script2.js";
+
+
 export class Particle {
     constructor(game, x, y) {
         this.game = game;
@@ -35,7 +38,7 @@ export class Particle {
         context.save()
         context.translate(this.x, this.y)
         context.rotate(this.angle)
-        context.drawImage(this.imageGear, this.frameX * this.spriteSize, this.frameY * this.spriteSize, this.spriteSize, this.spriteSize, this.size * -0.5, this.size * -0.5, this.size, this.size)
+        context.drawImage(this.imageGear, this.frameX * this.spriteSize, this.frameY * this.spriteSize, this.spriteSize, this.spriteSize, this.size * -0.5, this.size * -0.5, this.size * scale, this.size * scale)
         context.restore()
     }
 }

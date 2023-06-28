@@ -1,4 +1,7 @@
-export class Shield {
+import { scale } from "../script2.js";
+
+
+export  class Shield {
     constructor(game) {
         this.game = game;
         this.width = this.game.player.width;
@@ -46,8 +49,8 @@ export class Shield {
             this.height,
             this.game.player.x,
             this.game.player.y,
-            this.width,
-            this.height
+            this.width * scale,
+            this.height * scale
         );
     }
 

@@ -11,22 +11,22 @@ export class SoundController {
       this.volume = this.audioctx.createGain()
       this.backgroundMusicBuffer = null;
       this.source = null;
-  
+
       this.loadSoundFile("./sounds/music.mp3").then((buffer) => {
-        this.backgroundMusicBuffer = buffer;
-        this.playBackgroundMusic();
+          this.backgroundMusicBuffer = buffer;
+          this.playBackgroundMusic();
       });
-    }
-  
-    async loadSoundFile(url) {
+  }
+
+  async loadSoundFile(url) {
       const response = await fetch(url);
       const arrayBuffer = await response.arrayBuffer();
       return this.audioctx.decodeAudioData(arrayBuffer);
-    }
-  
-   
-  
-    playBackgroundMusic() {
+  }
+
+
+
+  playBackgroundMusic() {
       this.source = this.audioctx.createBufferSource();
       this.source.buffer = this.backgroundMusicBuffer;
       this.source.connect(this.volume);
@@ -34,17 +34,47 @@ export class SoundController {
       this.volume.connect(this.audioctx.destination)
       this.source.loop = true;
       this.source.start();
-    }
-  
-    stopBackgroundMusic() {
-      if (this.source) {
-        this.source.stop();
-        this.source.disconnect();
-        this.source = null;
-      }
-    }
-  
-    isBackgroundMusicPlaying() {
-      return this.source && this.source.buffer && this.audioctx.state === "running";
-    }
   }
+
+  stopBackgroundMusic() {
+      if (this.source) {
+          this.source.stop();
+          this.source.disconnect();
+          this.source = null;
+      }
+  }
+
+  isBackgroundMusicPlaying() {
+      return this.source && this.source.buffer && this.audioctx.state === "running";
+  }
+
+
+
+
+
+  powerUp() {
+      this.powerUpSound.currentTime = 0;
+      this.powerUpSound.play()
+  }
+  shot() {
+      this.shotSound.currentTime = 0;
+      this.shotSound.play()
+  }
+  powerDown() {
+      this.powerDownSound.currentTime = 0;
+      this.powerDownSound.play()
+  }
+  hit() {
+      this.hitSound.currentTime = 0;
+      this.hitSound.play()
+  }
+  explosion() {
+      this.explosionSound.currentTime = 0;
+      this.explosionSound.play()
+  }
+  shield() {
+      this.shieldSound.currentTime = 0;
+      this.shieldSound.play()
+  }
+
+}

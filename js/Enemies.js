@@ -1,3 +1,5 @@
+import { scale } from "../script2.js";
+
 
 class Enemy {
     constructor(game) {
@@ -31,7 +33,7 @@ class Enemy {
     draw(context) {
         context.save()
         context.strokeStyle = "red";
-        if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
+        if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height * scale);
         context.drawImage(this.imgEnemy,
             this.frameX * this.width,
             this.frameY * this.height,
@@ -39,13 +41,13 @@ class Enemy {
             this.height,
             this.x,
             this.y,
-            this.width,
-            this.height)
+            this.width * scale,
+            this.height * scale)
         context.fillStyle = "black"
         context.font = "30px Helvetica"
         if (this.game.debug) context.fillText(this.lives, this.x, this.y)
-        if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height)
-        if (this.game.debug) context.fillText(this.frameY, this.x + this.width, this.y + this.height)
+        if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height * scale)
+        if (this.game.debug) context.fillText(this.frameY, this.x + this.width * scale, this.y + this.height * scale)
 
         context.restore()
     }
@@ -94,6 +96,7 @@ class Lucky extends Enemy {
         this.frameY = Math.floor(Math.random() * 2);
         this.lives = 6;
         this.score = 15;
+        this.speedX = Math.random() * -3 - 1.5
         this.speedY = Math.sin((this.game.speed + this.x) * 0.9);
         this.amplitude = Math.random() * 3.5 + 0.5
 
@@ -130,7 +133,7 @@ class Drone extends Enemy {
         this.type = "drone";
         this.speedX = Math.random() * -4.2 - 4;
         this.amplitude = Math.random() * 5 + 3
-        this.frequency = Math.random() *0.1 + 0.1
+        this.frequency = Math.random() * 0.1 + 0.1
 
     }
 }
@@ -177,10 +180,10 @@ class Stalker extends Enemy {
         this.score = 20;
         this.type = "stalker";
         this.amplitude = 8;
-        this.speedX = Math.random()* -5 -2;
+        this.speedX = Math.random() * -5 - 2;
         this.followSpeed = 0.05;
-        this.amplitude = Math.random()* 13 + 5
-        this.frequency = Math.random() *0.1 * 0.1
+        this.amplitude = Math.random() * 13 + 5
+        this.frequency = Math.random() * 0.1 * 0.1
     }
 
     update(deltaTime) {
@@ -216,13 +219,14 @@ class Razorfin extends Stalker {
         this.type = "razorfin";
         this.followSpeed = 0.09;
         this.amplitude = Math.random() * 11 + 4
-        this.frequency = Math.random()* 0.02 + 0.01
-        this.speedX = Math.random()* -2 -1.5;
+        this.frequency = Math.random() * 0.02 + 0.01
+        this.speedX = Math.random() * -2 - 1.5;
 
     }
 
 
 }
+
 
 
 

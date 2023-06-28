@@ -8,12 +8,13 @@ export class InputHandler {
                 e.key === "ArrowLeft" ||
                 e.key === "ArrowRight" ||
                 e.key === " ")
-                && this.game.keys.indexOf(e.key) === -1) {
-                this.game.keys.push(e.key);
+                && !this.game.keys.has(e.key)) {
+                this.game.keys.add(e.key);
             } else if (e.key === "F2") {
                 this.game.debug = !this.game.debug
             } else if (e.key === "p") {
                 this.game.player.powerUp = !this.game.player.powerUp
+                this.game.sound.powerUp()
                 this.game.player.powerUpLimit = Infinity
             } else if (e.key === "q") {
                 this.game.gameSound = !this.game.gameSound;
@@ -25,8 +26,8 @@ export class InputHandler {
 
         });
         window.addEventListener("keyup", e => {
-            if (this.game.keys.indexOf(e.key) > -1) {
-                this.game.keys.splice(this.game.keys.indexOf(e.key), 1)
+            if (this.game.keys.has(e.key)) {
+                this.game.keys.delete(e.key)
             }
 
         });

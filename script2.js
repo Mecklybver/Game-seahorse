@@ -3,8 +3,8 @@ const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 // canvas.width = window.innerWidth;
 // canvas.height = window.innerHeight;
-canvas.width = 1220;
-canvas.height = 520;
+// canvas.width = 1220;
+// canvas.height = 520;
 
 import { UI } from "./js/UI.js";
 import { Player } from "./js/player.js";
@@ -18,10 +18,26 @@ import {Angler1,Angler2,Lucky,Hivewhale,Drone,Bulbwhale,Moonfish,Stalker,Razorfi
 import { Background } from "./js/Background.js";
 import { SmokeExplosion,FireExplosion } from "./js/explosion.js";
 
+
+export const scale = window.devicePixelRatio
+
+canvas.width = Math.floor(1220 * scale);
+canvas.height = Math.floor(520 * scale);
+
+
+
+
+
+
+
 window.addEventListener("load", e => {
 
+
+   
     class Game {
         constructor(width, height) {
+            this.earthquake = false
+            this.earthquakeTime = 0
             this.debug = false;
             this.width = width;
             this.height = height;
@@ -31,14 +47,14 @@ window.addEventListener("load", e => {
             this.sound = new SoundController()
             this.shield = new Shield(this);
             this.UI = new UI(this)
-            this.keys = [];
+            this.keys = new Set()
             this.scoreAnimations = [];
             this.enemies = []
             this.particles = []
+            this.numberOfConfettis = 500
             this.confettis = []
             this.explosions = []
             this.enemyTimer = 0;
-            this.enemyInterval = 1000;
             this.ammo = 80;
             this.ammoInterval = 800;
             this.ammoTimer = 0;
@@ -46,6 +62,7 @@ window.addEventListener("load", e => {
             this.gameOver = false;
             this.score = 0;
             this.winningScore = 1000;
+            this.enemyInterval = 1000
             this.gameTime = 0;
             this.timeLimit = 500000;
             this.speed = 1;
@@ -58,24 +75,26 @@ window.addEventListener("load", e => {
         }
 
         update(deltaTime) {
+            if (this.earthquake) this.earthquakeTime += deltaTime
+            this.enemyInterval = Math.random() * (1400 - this.score) + 600;
             this.elapsedTime += deltaTime
             if (this.gameSound && !this.sound.isBackgroundMusicPlaying()) {
                 if (!this.backgroundMusicStarted) {
-                  this.sound.playBackgroundMusic();
-                  this.backgroundMusicStarted = true;
+                    this.sound.playBackgroundMusic();
+                    this.backgroundMusicStarted = true;
                 }
-              } else if (!this.gameSound && this.sound.isBackgroundMusicPlaying()) {
+            } else if (!this.gameSound && this.sound.isBackgroundMusicPlaying()) {
                 this.sound.stopBackgroundMusic();
                 this.backgroundMusicStarted = false;
-              }
-              
+            }
+
             if (this.player.lives === 0 && this.score < this.winningScore) this.gameOver = true;
             if (!this.gameOver) this.gameTime += deltaTime;
             if (this.gameTime > this.timeLimit) this.gameOver = true;
             this.background.update(deltaTime);
-            this.UI.update(deltaTime)
             if (this.player.shield) this.shield.update(deltaTime)
             this.player.update(deltaTime);
+            this.UI.update(deltaTime);
             if (this.ammoTimer > this.ammoInterval) {
                 if (this.ammo < this.maxAmmo) this.ammo++
                 this.ammoTimer = 0;
@@ -89,6 +108,7 @@ window.addEventListener("load", e => {
             this.enemies.forEach(enemy => {
                 enemy.update(deltaTime);
                 if (this.checkCollision(this.player, enemy)) {
+                    game.earthquake = true
                     if (this.gameSound) this.sound.explosion();
                     if (this.gameSound) this.sound.hit();
                     if (!this.player.shield) this.player.lives--
@@ -117,6 +137,12 @@ window.addEventListener("load", e => {
                         if (this.score < 0) this.score = 0
                         this.scoreAnimations.push(scoreAnimation);
                     }
+
+
+
+
+
+
                 }
                 this.player.projectiles.forEach(projectile => {
                     if (this.checkCollision(projectile, enemy)) {
@@ -176,11 +202,13 @@ window.addEventListener("load", e => {
 
             this.confettis.forEach(confetti => {
                 confetti.update(deltaTime);
+                if (confetti.alpha === 0 || confetti.y > canvas.height + 10 || confetti.x < -5 || confetti.x > canvas.width + 10) {
+                    confetti.markedForDeletion = true;
+                }
+
             });
 
-            this.confettis = this.confettis.filter(confetti => {
-                return confetti.alpha > 0;
-            });
+            this.confettis = this.confettis.filter(confetti => !confetti.markedForDeletion);
             this.scoreAnimations.forEach(animation => {
                 animation.update(deltaTime);
             });
@@ -225,7 +253,7 @@ window.addEventListener("load", e => {
                 }
             }
 
-            if ((!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.53 && this.elapsedTime >= 20000) ||(!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1 && this.elapsedTime >= 30000) || this.enemies.lenght === 6 && this.elapsedTime >= 30000) {
+            if ((!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.53 && this.elapsedTime >= 20000) || (!this.enemies.some(enemy => enemy instanceof Lucky) && !this.player.powerUp && this.score > this.winningScore * 0.1 && this.elapsedTime >= 30000 && this.enemies.length >= 2) || this.enemies.lenght === 6 && this.elapsedTime >= 30000) {
                 this.enemies.push(new Lucky(this));
                 this.elapsedTime = 0;
             }
@@ -242,28 +270,49 @@ window.addEventListener("load", e => {
         }
         checkCollision(rect1, rect2) {
             return (
-                rect1.x < rect2.x + rect2.width &&
-                rect1.x + rect1.width > rect2.x &&
-                rect1.y < rect2.y + rect2.height &&
-                rect1.y + rect1.height > rect2.y
+                rect1.x < rect2.x + rect2.width * scale &&
+                rect1.x + rect1.width * scale > rect2.x &&
+                rect1.y < rect2.y + rect2.height * scale &&
+                rect1.y + rect1.height * scale > rect2.y
             );
         }
     }
 
     const game = new Game(canvas.width, canvas.height)
 
-
-    let lastTime = 0
+    const intensity = 15; // Adjust as needed
+    let duration = 800; // Adjust as needed
+    let startTime = 0;
     function animate(timeStamp) {
-        const deltaTime = timeStamp - lastTime
-        lastTime = timeStamp
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        game.draw(ctx);
-        game.update(deltaTime);
-        requestAnimationFrame(animate)
-    }
+        const deltaTime = timeStamp - startTime;
+        startTime = timeStamp;
 
-    animate(0);
+        if (game.earthquake && !game.player.shield) {
+            if (game.earthquakeTime < duration) {
+                const offsetX = Math.random() * intensity * 2 - intensity;
+                const offsetY = Math.random() * intensity * 2 - intensity;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                ctx.translate(offsetX, offsetY);
+                game.draw(ctx);
+                game.update(deltaTime);
+                ctx.restore();
+                requestAnimationFrame(animate);
+            } else {
+                game.earthquake = false;
+                game.earthquakeTime = 0
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                game.draw(ctx);
+                game.update(deltaTime);
+                requestAnimationFrame(animate);
+            }
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            game.draw(ctx);
+            game.update(deltaTime);
+            requestAnimationFrame(animate);
+        }
+    }
 
 
 
@@ -314,14 +363,22 @@ window.addEventListener("load", e => {
     }
 
     function startGame() {
-
+        const button = document.createElement("button")
+        document.body.appendChild(button)
+        button.textContent = "Start"
         progressBar.parentNode.removeChild(progressBar);
         progressText.parentNode.removeChild(progressText);
-        document.body.appendChild(canvas);
+        document.body.appendChild(button)
+        button.addEventListener("click", e => {
+            document.body.removeChild(button)
+            document.body.appendChild(canvas);
+            animate(0);
+
+
+
+        })
 
     }
-
-
 
 })
 

@@ -1,3 +1,5 @@
+import {scale} from "../script2.js"
+
 
 export class Projectile {
     constructor(game, x, y) {
@@ -6,7 +8,7 @@ export class Projectile {
         this.y = y;
         this.width = 36.25;
         this.height = 20;
-        this.speed = 6;
+        this.speed = 9;
         this.markedForDeletion = false;
         this.image = new Image();
         this.image.src = "./effects/projectile.png"
@@ -34,6 +36,6 @@ export class Projectile {
 
         context.fillStyle = "yellow"
         // context.fillRect(this.x, this.y, this.width, this.height)
-        context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height)
+        context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height, this.x, this.y, this.width * scale, this.height * scale)
     }
 }

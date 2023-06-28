@@ -1,4 +1,5 @@
 import {Projectile} from "./Projectile.js"
+import { scale } from "../script2.js";
 
 
 export class Player {
@@ -19,7 +20,7 @@ export class Player {
         this.imgPlayer.src = "./player/player.png";
         this.powerUp = false;
         this.powerUpTimer = 0;
-        this.powerUpLimit = 12000;
+        this.powerUpLimit = Math.random() * 10000 + 5000;
         this.elapsedTime = 0;
         this.shootDelay = 150;
         this.lastShoot = 0;
@@ -39,16 +40,16 @@ export class Player {
             }
         }
 
-        if (this.game.keys.includes("ArrowUp")) this.speedY = -this.maxSpeed;
-        else if (this.game.keys.includes("ArrowDown")) this.speedY = this.maxSpeed;
+        if (this.game.keys.has("ArrowUp")) this.speedY = -this.maxSpeed;
+        else if (this.game.keys.has("ArrowDown")) this.speedY = this.maxSpeed;
         else this.speedY = 0;
         this.elapsedTime += deltaTime;
         this.y += (this.speedY * deltaTime) * 0.1 + Math.sin(0.01 * this.elapsedTime);
 
-        if (this.game.keys.includes("ArrowLeft")) this.speedX = -this.maxSpeed;
-        else if (this.game.keys.includes("ArrowRight")) this.speedX = this.maxSpeed;
+        if (this.game.keys.has("ArrowLeft")) this.speedX = -this.maxSpeed;
+        else if (this.game.keys.has("ArrowRight")) this.speedX = this.maxSpeed;
         else this.speedX = 0;
-        if (this.game.keys.includes(" ")) this.shootTop();
+        if (this.game.keys.has(" ")) this.shootTop();
         this.x += (this.speedX * deltaTime) * 0.1;
 
         if (this.powerUp) {
@@ -98,7 +99,7 @@ export class Player {
     draw(context) {
         context.save();
 
-        if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
+        if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height * scale);
 
         this.projectiles.forEach(projectile => {
             projectile.draw(context);
@@ -115,8 +116,8 @@ export class Player {
                     this.height,
                     prevPlayer.x,
                     prevPlayer.y,
-                    this.width,
-                    this.height
+                    this.width * scale,
+                    this.height * scale
                 );
             });
         }
@@ -130,8 +131,8 @@ export class Player {
             this.height,
             this.x,
             this.y,
-            this.width,
-            this.height
+            this.width * scale,
+            this.height * scale
         );
 
         context.restore();
@@ -143,7 +144,7 @@ export class Player {
         if (this.game.ammo > 0 && this.lastShoot > this.shootDelay) {
             this.lastShoot = 0;
             if (this.game.gameSound) this.game.sound.shot()
-            this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 30))
+            this.projectiles.push(new Projectile(this.game, this.x + 100 * scale, this.y + 30 * scale))
             this.game.ammo--;
             if (this.powerUp) this.shootBottom();
         }
@@ -151,7 +152,7 @@ export class Player {
     }
     shootBottom() {
 
-        this.projectiles.push(new Projectile(this.game, this.x + 100, this.y + 175))
+        this.projectiles.push(new Projectile(this.game, this.x + 100 * scale, this.y + 175 * scale))
 
     }
     enterPowerUp() {

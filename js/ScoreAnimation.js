@@ -1,3 +1,5 @@
+import { scale } from "../script2.js";
+
 export class ScoreAnimation {
     constructor(game, x, y, score, takePoints) {
         this.game = game;
@@ -18,8 +20,8 @@ export class ScoreAnimation {
     update(deltaTime) {
         this.elapsedTime += deltaTime;
 
-        const targetX = 70;
-        const targetY = 30;
+        const targetX = 70 * scale;
+        const targetY = 30 * scale;
 
         const distance = Math.hypot(targetX - this.x, targetY - this.y);
 
