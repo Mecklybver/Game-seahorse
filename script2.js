@@ -8,15 +8,15 @@ const ctx = canvas.getContext("2d");
 
 import { UI } from "./js/UI.js";
 import { Player } from "./js/player.js";
-import {ScoreAnimation} from "./js/ScoreAnimation.js"
+import { ScoreAnimation } from "./js/ScoreAnimation.js"
 import { Confetti } from "./js/Confetti.js";
 import { InputHandler } from "./js/InputHandler.js";
 import { SoundController } from "./js/SoundController.js";
 import { Shield } from "./js/Shield.js";
 import { Particle } from "./js/Particle.js";
-import {Angler1,Angler2,Lucky,Hivewhale,Drone,Bulbwhale,Moonfish,Stalker,Razorfin} from "./js/Enemies.js"
+import { Angler1, Angler2, Lucky, Hivewhale, Drone, Bulbwhale, Moonfish, Stalker, Razorfin } from "./js/Enemies.js"
 import { Background } from "./js/Background.js";
-import { SmokeExplosion,FireExplosion } from "./js/explosion.js";
+import { SmokeExplosion, FireExplosion } from "./js/explosion.js";
 
 
 export const scale = window.devicePixelRatio
@@ -33,7 +33,7 @@ canvas.height = Math.floor(520 * scale);
 window.addEventListener("load", e => {
 
 
-   
+
     class Game {
         constructor(width, height) {
             this.earthquake = false
@@ -61,7 +61,7 @@ window.addEventListener("load", e => {
             this.maxAmmo = 80;
             this.gameOver = false;
             this.score = 0;
-            this.winningScore = 100;
+            this.winningScore = 1000;
             this.enemyInterval = 1000
             this.gameTime = 0;
             this.timeLimit = 500000;
@@ -69,12 +69,16 @@ window.addEventListener("load", e => {
             this.elapsedTime = 0
             this.gameSound = true
             this.backgroundMusicStarted = false;
+            this.projectiles = []
+            this.projectilesFromEnemy = []
 
 
 
         }
 
         update(deltaTime) {
+            console.log(this.projectilesFromEnemy)
+
             if (this.earthquake) this.earthquakeTime += deltaTime
             this.enemyInterval = Math.random() * (1400 - this.score) + 600;
             this.elapsedTime += deltaTime
@@ -88,7 +92,7 @@ window.addEventListener("load", e => {
                 this.backgroundMusicStarted = false;
             }
 
-            if (this.player.lives === 0 && this.score < this.winningScore) this.gameOver = true;
+            if (this.player.lives <= 0 && this.score < this.winningScore) this.gameOver = true;
             if (!this.gameOver) this.gameTime += deltaTime;
             if (this.gameTime > this.timeLimit) this.gameOver = true;
             this.background.update(deltaTime);
@@ -102,9 +106,54 @@ window.addEventListener("load", e => {
                 this.ammoTimer += deltaTime
             }
             this.particles.forEach(particle => particle.update())
+            this.projectilesFromEnemy.forEach(projectile => projectile.update(deltaTime));
+
+
+
+
             this.particles = this.particles.filter(particle => !particle.markedForDeletion)
             this.explosions.forEach(explosion => explosion.update(deltaTime))
             this.explosions = this.explosions.filter(explosion => !explosion.markedForDeletion)
+            this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
+            this.projectilesFromEnemy = this.projectilesFromEnemy.filter(projectile => !projectile.markedForDeletion);
+
+
+            this.projectilesFromEnemy.forEach(projectile => {
+                if (this.checkCollision(projectile, this.player)) {
+                    for (let i = 0; i < 12 - this.player.lives; i++) {
+                        this.particles.push(new Particle(this, this.player.x + this.player.width * 0.5, this.player.y + this.player.height * 0.5))
+                    }
+                    game.earthquake = true
+                    if (this.gameSound) this.sound.explosion();
+                    if (this.gameSound) this.sound.hit();
+                    if (!this.player.shield) this.player.lives--
+                    if (this.player.shield) {
+                        this.shield.reset();
+                        if (this.gameSound) this.sound.shield()
+                    }
+                    projectile.markedForDeletion = true;
+                  
+                    for (let i = 0; i < 12 - this.player.lives; i++) {
+                        this.particles.push(new Particle(this, this.player.x + this.player.width * 0.5, this.player.y + this.player.height * 0.5))
+                    }
+
+                    const scoreAnimation = new ScoreAnimation(
+                        this.game,
+                        this.player.x + this.player.width * 0.5,
+                        this.player.y + this.player.height * 0.5,
+                        1,
+                        true
+                    );
+                    if (this.score != 0 && !this.gameOver) {
+                        this.score -= 1
+                        if (this.score < 0) this.score = 0
+                        this.scoreAnimations.push(scoreAnimation);
+                    }
+                }
+            })
+
+
+
             this.enemies.forEach(enemy => {
                 enemy.update(deltaTime);
                 if (this.checkCollision(this.player, enemy)) {
@@ -137,21 +186,15 @@ window.addEventListener("load", e => {
                         if (this.score < 0) this.score = 0
                         this.scoreAnimations.push(scoreAnimation);
                     }
-
-
-
-
-
-
                 }
-                this.player.projectiles.forEach(projectile => {
+
+
+                this.projectiles.forEach(projectile => {
                     if (this.checkCollision(projectile, enemy)) {
                         enemy.lives--;
                         for (let i = 0; i < 2; i++) {
                             this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5))
                         }
-
-
                         projectile.markedForDeletion = true;
                         if (enemy.lives <= 0) {
                             enemy.markedForDeletion = true;
@@ -228,10 +271,11 @@ window.addEventListener("load", e => {
                 animation.draw(context);
             });
             this.confettis.forEach(confetti => confetti.draw(ctx));
+            this.projectilesFromEnemy.forEach(projectile => projectile.draw(context));
         }
         addEnemy() {
             const randomize = Math.random();
-            if (randomize < 0.2) {
+             if (randomize < 0.2) {
                 this.enemies.push(new Angler1(this));
             } else if (randomize < 0.4) {
                 this.enemies.push(new Angler2(this));

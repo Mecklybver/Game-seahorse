@@ -166,15 +166,35 @@ class Moonfish extends Enemy {
         this.type = "moonfish";
         this.speedX = Math.random() * -1.2 - 2;
     }
+    update(deltaTime) {
+        this.elapsedTime += deltaTime
+        this.x += this.speedX - this.game.speed;
+        this.speedY = Math.sin((this.game.speed + this.x) * this.frequency) * this.amplitude;
+        this.y += this.speedY;
+        if (this.x + this.width < 0) this.markedForDeletion = true;
+        this.frameX++
+        this.frameX %= this.maxFrame
+
+        const shootingThreshold = 3;
+        if (this.elapsedTime >= 1800 && Math.abs(this.y - this.game.player.y - this.game.player.height * 0.4) <= shootingThreshold) {
+            this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x -5, this.y + this.height * 0.3, -8));
+            this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x -5, this.y + this.height * 0.7, -8));
+
+            this.elapsedTime = 0
+        }
+     
+
+    }
 }
 class Stalker extends Enemy {
     constructor(game) {
         super(game);
-        this.projectiles = []
+        this.game = game
         this.width = 243;
         this.height = 123;
         this.y = Math.random() * (this.game.height * 0.9 - this.height);
         this.imgEnemy = new Image();
+        this.imgEnemy.src = "./enemies/stalker.png";
         this.lives = 7;
         this.score = 20;
         this.type = "stalker";
@@ -186,9 +206,9 @@ class Stalker extends Enemy {
     }
 
     update(deltaTime) {
-
+        this.frameX++
+        this.frameX %= this.maxFrame
         this.elapsedTime += deltaTime;
-        console.log(this.elapsedTime)
         this.x += this.speedX - this.game.speed;
 
         const targetY = this.game.player.y;
@@ -196,16 +216,14 @@ class Stalker extends Enemy {
         this.speedY = Math.sin((this.game.speed + this.x) * this.frequency) * this.amplitude;
         this.y += deltaY * this.followSpeed + this.speedY;
 
-        const shootingThreshold = 2;
-        if (this.elapsedTime >= 800 && Math.abs(this.y - this.game.player.y - this.game.player.height * 0.4) <= shootingThreshold) {
-            this.projectiles.push(new ProjectileEnemy(this.game, this.x, this.y + this.height * 0.5));
+        const shootingThreshold = 3;
+        if (this.elapsedTime >= 1500 && Math.abs(this.y - this.game.player.y - this.game.player.height * 0.4) <= shootingThreshold) {
+            this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x -10, this.y + this.height * 0.5, -8));
             this.elapsedTime = 0
         }
-        this.projectiles.forEach(projectile => {
-            projectile.update(deltaTime)
-        });
-        this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
+     
 
+       
 
     }
     draw(context) {
@@ -228,9 +246,7 @@ class Stalker extends Enemy {
         if (this.game.debug) context.fillText(this.frameY, this.x + this.width * scale, this.y + this.height * scale)
 
         context.restore()
-        this.projectiles.forEach(projectile => {
-            projectile.draw(context);
-        });
+        
     }
 
 }
@@ -255,6 +271,8 @@ class Razorfin extends Stalker {
         this.speedX = Math.random() * -2 - 1.5;
 
     }
+
+    
 
 
 }

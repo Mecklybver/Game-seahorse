@@ -15,7 +15,6 @@ export class Player {
         this.speedY = 0;
         this.speedX = 0;
         this.maxSpeed = 2;
-        this.projectiles = [];
         this.imgPlayer = new Image();
         this.imgPlayer.src = "./player/player.png";
         this.powerUp = false;
@@ -31,6 +30,7 @@ export class Player {
     }
 
     update(deltaTime) {
+
         this.lastShoot += deltaTime;
         if (this.powerUp) {
 
@@ -64,10 +64,10 @@ export class Player {
             }
         }
 
-        this.projectiles.forEach(projectile => {
+        this.game.projectiles.forEach(projectile => {
             projectile.update(deltaTime);
         });
-        this.projectiles = this.projectiles.filter(projectile => {
+        this.game.projectiles = this.game.projectiles.filter(projectile => {
             return !projectile.markedForDeletion;
         });
 
@@ -101,7 +101,7 @@ export class Player {
 
         if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height * scale);
 
-        this.projectiles.forEach(projectile => {
+        this.game.projectiles.forEach(projectile => {
             projectile.draw(context);
         });
 
@@ -144,7 +144,7 @@ export class Player {
         if (this.game.ammo > 0 && this.lastShoot > this.shootDelay) {
             this.lastShoot = 0;
             if (this.game.gameSound) this.game.sound.shot()
-            this.projectiles.push(new Projectile(this.game, this.x + 100 * scale, this.y + 30 * scale))
+            this.game.projectiles.push(new Projectile(this.game, this.x + 100 * scale, this.y + 30 * scale))
             this.game.ammo--;
             if (this.powerUp) this.shootBottom();
         }
@@ -152,7 +152,7 @@ export class Player {
     }
     shootBottom() {
 
-        this.projectiles.push(new Projectile(this.game, this.x + 100 * scale, this.y + 175 * scale))
+        this.game.projectiles.push(new Projectile(this.game, this.x + 100 * scale, this.y + 175 * scale))
 
     }
     enterPowerUp() {

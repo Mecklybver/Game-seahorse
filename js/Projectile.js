@@ -41,28 +41,14 @@ export class Projectile {
 
 
 export class ProjectileEnemy extends Projectile {
-    constructor(game, x, y) {
+    constructor(game, x, y, speed) {
         super(game, x, y);
-        this.speed = -9;
+        this.speed = speed;
     }
-
-    draw(context) {
-        context.save();
-        context.fillStyle = "red";
-        if (this.game.debug) context.fillRect(this.x + this.width * scale, this.y, -this.width * scale, this.height * scale);
-        context.scale(-1, 1); // Flip horizontally
-        context.drawImage(
-            this.image,
-            this.frameX * this.width, 0, this.width, this.height,
-            -this.x - this.width * scale, this.y, this.width * scale, this.height * scale
-        );
-        context.restore();
-    }
-    
 
     update(deltaTime) {
-        this.x += this.speed;
-
+        this.x += this.speed; // Adjusted line to move left
+    
         if (this.timer > this.interval) {
             this.frameX++;
             this.frameX %= this.maxFrame;
@@ -70,9 +56,32 @@ export class ProjectileEnemy extends Projectile {
         } else {
             this.timer += deltaTime;
         }
-
+    
         if (this.x < this.game.width * 0.03) {
             this.markedForDeletion = true;
         }
     }
+    
+
+    draw(context) {
+        context.save();
+        context.fillStyle = "red";
+        if (this.game.debug) context.fillRect(this.x + this.width * scale, this.y, -this.width * scale, this.height * scale);
+    
+        context.translate(this.x, this.y); // Translate to projectile position
+        context.scale(-1, 1); // Flip horizontally
+    
+        context.drawImage(
+            this.image,
+            this.frameX * this.width, 0, this.width, this.height,
+            0, 0, -this.width * scale, this.height * scale
+        );
+    
+        context.restore();
+    }
+    
+    
+
+   
+
 }
