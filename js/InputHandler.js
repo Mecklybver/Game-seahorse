@@ -14,8 +14,12 @@ export class InputHandler {
                 this.game.debug = !this.game.debug
             } else if (e.key === "p") {
                 this.game.player.powerUp = !this.game.player.powerUp
-                this.game.sound.powerUp()
+                if(this.game.player.powerUp)this.game.sound.powerUp()
+                if(!this.game.player.powerUp)this.game.sound.powerDown()
                 this.game.player.powerUpLimit = Infinity
+                if(!this.game.player.powerUp)this.game.sound.powerDown()
+                if(!this.game.player.powerUp)this.game.player.PowerUp = 0
+
             } else if (e.key === "q") {
                 this.game.gameSound = !this.game.gameSound;
             } else if (e.key === "s") {

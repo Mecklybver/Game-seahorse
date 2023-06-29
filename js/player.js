@@ -19,7 +19,7 @@ export class Player {
         this.imgPlayer.src = "./player/player.png";
         this.powerUp = false;
         this.powerUpTimer = 0;
-        this.powerUpLimit = Math.random() * 10000 + 5000;
+        this.powerUpLimit = Math.random() * 8000 + 5000;
         this.elapsedTime = 0;
         this.shootDelay = 150;
         this.lastShoot = 0;

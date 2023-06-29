@@ -77,7 +77,6 @@ window.addEventListener("load", e => {
         }
 
         update(deltaTime) {
-            console.log(this.projectilesFromEnemy)
 
             if (this.earthquake) this.earthquakeTime += deltaTime
             this.enemyInterval = Math.random() * (1400 - this.score) + 600;
@@ -116,6 +115,10 @@ window.addEventListener("load", e => {
             this.explosions = this.explosions.filter(explosion => !explosion.markedForDeletion)
             this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
             this.projectilesFromEnemy = this.projectilesFromEnemy.filter(projectile => !projectile.markedForDeletion);
+
+            
+
+
 
 
             this.projectilesFromEnemy.forEach(projectile => {
@@ -288,9 +291,9 @@ window.addEventListener("load", e => {
                 this.enemies.push(new Razorfin(this));
             } else if (!this.enemies.some(enemy => enemy instanceof Hivewhale) && randomize < 0.7 && this.score > this.winningScore * 0.45) {
                 this.enemies.push(new Hivewhale(this));
-            } else if (!this.enemies.some(enemy => enemy instanceof Bulbwhale) && randomize < 0.8 && this.score > this.winningScore * 0.6) {
+            } else if (!this.enemies.some(enemy => enemy instanceof Bulbwhale) && randomize < 0.8 && this.score > this.winningScore * 0.53) {
                 this.enemies.push(new Bulbwhale(this));
-            } else if (!this.enemies.some(enemy => enemy instanceof Moonfish) && randomize < 0.9 && this.score > this.winningScore * 0.6) {
+            } else if (!this.enemies.some(enemy => enemy instanceof Moonfish) && randomize < 0.9 && this.score > this.winningScore * 0.55) {
                 const randomize2 = Math.floor(Math.random() * 4 + 1)
                 for (let i = 0; i < randomize2; i++) {
                     this.enemies.push(new Moonfish(this));
