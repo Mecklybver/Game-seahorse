@@ -1,5 +1,6 @@
-import { scale } from "../script2.js";
 
+import { ProjectileEnemy } from "./Projectile.js";
+import {scale} from "../script2.js"
 
 class Enemy {
     constructor(game) {
@@ -33,7 +34,7 @@ class Enemy {
     draw(context) {
         context.save()
         context.strokeStyle = "red";
-        if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height * scale);
+        if (this.game.debug) context.strokeRect(this.x, this.y, this.width *scale, this.height * scale);
         context.drawImage(this.imgEnemy,
             this.frameX * this.width,
             this.frameY * this.height,
@@ -42,12 +43,12 @@ class Enemy {
             this.x,
             this.y,
             this.width * scale,
-            this.height * scale)
+            this.height *scale)
         context.fillStyle = "black"
         context.font = "30px Helvetica"
         if (this.game.debug) context.fillText(this.lives, this.x, this.y)
-        if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height * scale)
-        if (this.game.debug) context.fillText(this.frameY, this.x + this.width * scale, this.y + this.height * scale)
+        if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height *scale)
+        if (this.game.debug) context.fillText(this.frameY, this.x + this.width *scale, this.y + this.height * scale)
 
         context.restore()
     }
@@ -96,7 +97,6 @@ class Lucky extends Enemy {
         this.frameY = Math.floor(Math.random() * 2);
         this.lives = 6;
         this.score = 15;
-        this.speedX = Math.random() * -3 - 1.5
         this.speedY = Math.sin((this.game.speed + this.x) * 0.9);
         this.amplitude = Math.random() * 3.5 + 0.5
 
@@ -133,7 +133,7 @@ class Drone extends Enemy {
         this.type = "drone";
         this.speedX = Math.random() * -4.2 - 4;
         this.amplitude = Math.random() * 5 + 3
-        this.frequency = Math.random() * 0.1 + 0.1
+        this.frequency = Math.random() *0.1 + 0.1
 
     }
 }
@@ -170,12 +170,11 @@ class Moonfish extends Enemy {
 class Stalker extends Enemy {
     constructor(game) {
         super(game);
+        this.projectiles = []
         this.width = 243;
         this.height = 123;
         this.y = Math.random() * (this.game.height * 0.9 - this.height);
         this.imgEnemy = new Image();
-        this.imgEnemy.src = "./enemies/stalker.png";
-        this.frameY = 0;
         this.lives = 7;
         this.score = 20;
         this.type = "stalker";
@@ -187,20 +186,52 @@ class Stalker extends Enemy {
     }
 
     update(deltaTime) {
+
+        console.log(this.projectiles)
         this.elapsedTime += deltaTime;
         this.x += this.speedX - this.game.speed;
-
-        // Follow the player's position on the Y-axis
-        const targetY = this.game.player.y;
+      
+        const targetY = this.game.player.y ;
         const deltaY = targetY - this.y;
         this.speedY = Math.sin((this.game.speed + this.x) * this.frequency) * this.amplitude;
-        this.y += deltaY * this.followSpeed + this.speedY
+        this.y += deltaY * this.followSpeed + this.speedY;
+      
+        const shootingThreshold = 2; 
+        if (Math.abs(this.y - this.game.player.y - this.game.player.height *0.4) <= shootingThreshold) {
+          this.projectiles.push(new ProjectileEnemy(this.game, this.x, this.y));
+        }
+        this.projectiles.forEach(projectile => {
+            projectile.update(deltaTime)
+        });
+        this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
+      
+      
+      }
+      draw(context) {
+        context.save()
+        context.strokeStyle = "red";
+        if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height * scale);
+        context.drawImage(this.imgEnemy,
+            this.frameX * this.width,
+            this.frameY * this.height,
+            this.width,
+            this.height,
+            this.x,
+            this.y,
+            this.width * scale,
+            this.height * scale)
+        context.fillStyle = "black"
+        context.font = "30px Helvetica"
+        if (this.game.debug) context.fillText(this.lives, this.x, this.y)
+        if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height * scale)
+        if (this.game.debug) context.fillText(this.frameY, this.x + this.width * scale, this.y + this.height * scale)
 
-
-        if (this.x + this.width < 0) this.markedForDeletion = true;
-        this.frameX++;
-        this.frameX %= this.maxFrame;
+        context.restore()
+        this.projectiles.forEach(projectile => {
+            projectile.draw(context);            
+        });
     }
+      
 }
 
 
@@ -219,14 +250,13 @@ class Razorfin extends Stalker {
         this.type = "razorfin";
         this.followSpeed = 0.09;
         this.amplitude = Math.random() * 11 + 4
-        this.frequency = Math.random() * 0.02 + 0.01
-        this.speedX = Math.random() * -2 - 1.5;
+        this.frequency = Math.random()* 0.02 + 0.01
+        this.speedX = Math.random()* -2 -1.5;
 
     }
 
 
 }
-
 
 
 
