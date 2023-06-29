@@ -47,14 +47,18 @@ export class ProjectileEnemy extends Projectile {
     }
 
     draw(context) {
-        context.fillStyle = "yellow";
-        // context.fillRect(this.x, this.y, this.width, this.height)
         context.save();
+        context.fillStyle = "red";
+        if (this.game.debug) context.fillRect(this.x + this.width * scale, this.y, -this.width * scale, this.height * scale);
         context.scale(-1, 1); // Flip horizontally
-        if(this.game.debug)context.fillRect(this.x, this.y, this.width * scale, this.height *scale)
-        context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height, -this.x, this.y, this.width * scale, this.height * scale);
+        context.drawImage(
+            this.image,
+            this.frameX * this.width, 0, this.width, this.height,
+            -this.x - this.width * scale, this.y, this.width * scale, this.height * scale
+        );
         context.restore();
     }
+    
 
     update(deltaTime) {
         this.x += this.speed;

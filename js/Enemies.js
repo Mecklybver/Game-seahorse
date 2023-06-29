@@ -1,6 +1,6 @@
 
 import { ProjectileEnemy } from "./Projectile.js";
-import {scale} from "../script2.js"
+import { scale } from "../script2.js"
 
 class Enemy {
     constructor(game) {
@@ -17,7 +17,7 @@ class Enemy {
         this.frameX = 0;
         this.frameY = 0;
         this.maxFrame = 37
-        this.elapsedTime
+        this.elapsedTime = 0
         this.amplitude = 1
         this.frequency = 0.1
     }
@@ -34,7 +34,7 @@ class Enemy {
     draw(context) {
         context.save()
         context.strokeStyle = "red";
-        if (this.game.debug) context.strokeRect(this.x, this.y, this.width *scale, this.height * scale);
+        if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height * scale);
         context.drawImage(this.imgEnemy,
             this.frameX * this.width,
             this.frameY * this.height,
@@ -43,12 +43,12 @@ class Enemy {
             this.x,
             this.y,
             this.width * scale,
-            this.height *scale)
+            this.height * scale)
         context.fillStyle = "black"
         context.font = "30px Helvetica"
         if (this.game.debug) context.fillText(this.lives, this.x, this.y)
-        if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height *scale)
-        if (this.game.debug) context.fillText(this.frameY, this.x + this.width *scale, this.y + this.height * scale)
+        if (this.game.debug) context.fillText(this.type, this.x, this.y + this.height * scale)
+        if (this.game.debug) context.fillText(this.frameY, this.x + this.width * scale, this.y + this.height * scale)
 
         context.restore()
     }
@@ -133,7 +133,7 @@ class Drone extends Enemy {
         this.type = "drone";
         this.speedX = Math.random() * -4.2 - 4;
         this.amplitude = Math.random() * 5 + 3
-        this.frequency = Math.random() *0.1 + 0.1
+        this.frequency = Math.random() * 0.1 + 0.1
 
     }
 }
@@ -187,27 +187,28 @@ class Stalker extends Enemy {
 
     update(deltaTime) {
 
-        console.log(this.projectiles)
         this.elapsedTime += deltaTime;
+        console.log(this.elapsedTime)
         this.x += this.speedX - this.game.speed;
-      
-        const targetY = this.game.player.y ;
+
+        const targetY = this.game.player.y;
         const deltaY = targetY - this.y;
         this.speedY = Math.sin((this.game.speed + this.x) * this.frequency) * this.amplitude;
         this.y += deltaY * this.followSpeed + this.speedY;
-      
-        const shootingThreshold = 2; 
-        if (Math.abs(this.y - this.game.player.y - this.game.player.height *0.4) <= shootingThreshold) {
-          this.projectiles.push(new ProjectileEnemy(this.game, this.x, this.y));
+
+        const shootingThreshold = 2;
+        if (this.elapsedTime >= 800 && Math.abs(this.y - this.game.player.y - this.game.player.height * 0.4) <= shootingThreshold) {
+            this.projectiles.push(new ProjectileEnemy(this.game, this.x, this.y + this.height * 0.5));
+            this.elapsedTime = 0
         }
         this.projectiles.forEach(projectile => {
             projectile.update(deltaTime)
         });
         this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
-      
-      
-      }
-      draw(context) {
+
+
+    }
+    draw(context) {
         context.save()
         context.strokeStyle = "red";
         if (this.game.debug) context.strokeRect(this.x, this.y, this.width * scale, this.height * scale);
@@ -228,10 +229,10 @@ class Stalker extends Enemy {
 
         context.restore()
         this.projectiles.forEach(projectile => {
-            projectile.draw(context);            
+            projectile.draw(context);
         });
     }
-      
+
 }
 
 
@@ -250,8 +251,8 @@ class Razorfin extends Stalker {
         this.type = "razorfin";
         this.followSpeed = 0.09;
         this.amplitude = Math.random() * 11 + 4
-        this.frequency = Math.random()* 0.02 + 0.01
-        this.speedX = Math.random()* -2 -1.5;
+        this.frequency = Math.random() * 0.02 + 0.01
+        this.speedX = Math.random() * -2 - 1.5;
 
     }
 
@@ -271,5 +272,4 @@ export {
     Moonfish,
     Stalker,
     Razorfin
-  };
-  
+};
