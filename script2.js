@@ -102,7 +102,7 @@ class Game {
         this.lives.forEach(life => {
             life.update(deltaTime)
             if (this.checkCollision(life, this.player)) {
-                if(this.player.lives != 10)this.player.lives++
+                if(this.player.lives != 10 || this.player.lives === 0)this.player.lives++
                 this.lives.splice(this.lives.indexOf(life), 1)
             }
 
