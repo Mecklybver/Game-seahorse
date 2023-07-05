@@ -244,7 +244,7 @@ class Game {
                         let randomize = Math.random()
 
 
-                        if (enemy.type === "lucky" && randomize < 0.5 || this.score > this.winningScore * 0.6) this.player.enterPowerUp()
+                        if (enemy.type === "lucky" && randomize < 0.5 ) this.player.enterPowerUp()
                         if (enemy.type === "lucky" && randomize >= 0.5) {
                             if (this.gameSound) this.sound.shield()
                             this.player.shield = true
