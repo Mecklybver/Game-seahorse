@@ -236,19 +236,9 @@ class Game {
                             this.lives.push(new Live(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5))
                         }
 
-
-
                         if (this.score > this.winningScore) this.gameOver = true;
-                        let randomize = Math.random()
-                        console.log(randomize)
-
-
-                        if (enemy.type === "lucky" && randomize < 0.5 && this.score > this.winningScore * 0.4 ) this.player.enterPowerUp()
-                        if (enemy.type === "lucky" && randomize >= 0.5 || enemy.type === "lucky" && randomize < 0.5 && this.score < this.winningScore * 0.4) {
-                            if (this.gameSound) this.sound.shield()
-                            this.player.shield = true
-                            this.ammo = this.maxAmmo
-                        }
+                        if (enemy.type === "lucky" && randomize < 0.5 ) this.player.enterPowerUp()
+                      
                         if (enemy.type === "moonfish") this.player.enterPowerUp()
                         if (enemy.type === "bulbwhale" || enemy.type === "moonfish") {
                             this.player.shield = true

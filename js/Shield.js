@@ -35,7 +35,12 @@ export  class Shield {
                 this.game.player.shield = false;
                 this.duration = 0;
                 this.frameX = 0;
-                if (this.game.gameSound) this.game.sound.shield();
+                if (this.game.gameSound){ 
+                    this.game.sound.shield();
+                    setTimeout(() => {
+                        this.game.sound.shield();
+                    }, 200);
+                }
             }
         }
     }
