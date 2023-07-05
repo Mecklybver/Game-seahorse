@@ -14,8 +14,6 @@ canvas.height = Math.floor(520 * scale);
 
 
 
-window.addEventListener("load", e => {
-
 
     class ScoreAnimation {
         constructor(game, x, y, score, takePoints) {
@@ -1088,7 +1086,7 @@ window.addEventListener("load", e => {
         constructor(game) {
             this.game = game;
             this.fontSize = 25 * scale;
-            this.fontFamily = "Helvetica";
+            this.fontFamily = "Bangers"
             this.color = "white"
             this.x = 20;
             this.y = 40
@@ -1283,9 +1281,11 @@ window.addEventListener("load", e => {
                 this.backgroundMusicStarted = false;
             }
 
-            if (this.player.lives === 0 && this.score < this.winningScore) this.gameOver = true;
+            if (this.player.lives === 0 && this.score < this.winningScore || this.gameTime > this.timeLimit){
+                 this.gameOver = true;
+                 
+                }
             if (!this.gameOver) this.gameTime += deltaTime;
-            if (this.gameTime > this.timeLimit) this.gameOver = true;
             this.background.update(deltaTime);
             if (this.player.shield) this.shield.update(deltaTime)
             this.player.update(deltaTime);
@@ -1564,6 +1564,7 @@ window.addEventListener("load", e => {
     }
 
 
+    window.addEventListener("load", e => {
 
 
     ///Progress bar

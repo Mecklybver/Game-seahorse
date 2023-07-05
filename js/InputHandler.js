@@ -1,7 +1,10 @@
+export let pause = false
+import { animate } from "../script2.js";
 
 export class InputHandler {
     constructor(game) {
         this.game = game;
+        this.resetTimer = 0
         window.addEventListener("keydown", e => {
             if ((e.key === "ArrowUp" ||
                 e.key === "ArrowDown" ||
@@ -12,6 +15,13 @@ export class InputHandler {
                 this.game.keys.add(e.key);
             } else if (e.key === "F2") {
                 this.game.debug = !this.game.debug
+            } else if (e.key === "p") {
+            } else if (e.key === "w") {
+                pause = !pause
+                    cancelAnimationFrame(animate)
+                if (!pause) {
+                    animate(0);
+                  }                
             } else if (e.key === "p") {
                 this.game.player.powerUp = !this.game.player.powerUp
                 if(this.game.player.powerUp)this.game.sound.powerUp()

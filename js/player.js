@@ -14,7 +14,7 @@ export class Player {
         this.maxFrame = 37;
         this.speedY = 0;
         this.speedX = 0;
-        this.maxSpeed = 2;
+        this.maxSpeed = 3;
         this.imgPlayer = new Image();
         this.imgPlayer.src = "./player/player.png";
         this.powerUp = false;

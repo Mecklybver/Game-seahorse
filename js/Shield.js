@@ -13,7 +13,7 @@ export  class Shield {
         this.timer = 0;
         this.activa
         this.duration = 0;
-        this.timeLimit = 12000
+        this.timeLimit = Math.random() * 8000 + 12000 
         this.fps = 30;
         this.interval = 1000 / this.fps;
     }

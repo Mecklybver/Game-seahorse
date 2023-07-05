@@ -4,7 +4,7 @@ export  class UI {
     constructor(game) {
         this.game = game;
         this.fontSize = 25 * scale;
-        this.fontFamily = "Helvetica";
+        this.fontFamily = "Bangers";
         this.color = "white"
         this.x = 20;
         this.y = 40

@@ -96,7 +96,7 @@ class Lucky extends Enemy {
         this.imgEnemy.src = "./enemies/lucky.png"
         this.frameY = Math.floor(Math.random() * 2);
         this.lives = 6;
-        this.score = 15;
+        this.score = 8;
         this.speedY = Math.sin((this.game.speed + this.x) * 0.9);
         this.amplitude = Math.random() * 3.5 + 0.5
 
@@ -118,39 +118,49 @@ class Hivewhale extends Enemy {
         this.speedX = Math.random() * -1.2 - 0.2;
     }
     update(deltaTime) {
-        this.elapsedTime += deltaTime
+        this.elapsedTime += deltaTime;
         this.x += this.speedX - this.game.speed;
         this.speedY = Math.sin((this.game.speed + this.x) * this.frequency) * this.amplitude;
         this.y += this.speedY;
-        if (this.x + this.width < 0) this.markedForDeletion = true;
-        this.frameX++
-        this.frameX %= this.maxFrame
+
+        if (this.x + this.width < 0) {
+            this.markedForDeletion = true;
+        }
+
+        this.frameX++;
+        this.frameX %= this.maxFrame;
 
         const shootingThreshold = 13;
-        if (this.elapsedTime >= 1300 && Math.abs(this.y - this.game.player.y - this.game.player.height * 0.4) <= shootingThreshold) {
-            const randomize = Math.floor(Math.random() * 4 + 1)
-            for (let i = 0; i < randomize; i++) {
+        const shootingDelay = 300; // Delay between each projectile (in milliseconds)
+        const shootingCooldown = 1300; // Cooldown time before enemy can shoot again (in milliseconds)
+
+        if (
+            this.elapsedTime >= shootingCooldown &&
+            (Math.abs(this.y - this.game.player.y - this.game.player.height * 0.5) <= shootingThreshold ||
+                Math.abs(this.y - this.game.player.y - this.game.player.height * 0.3) <= shootingThreshold)
+        ) {
+            setTimeout(() => {
+                this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x - 5, this.y + this.height * 0.3, -8));
+                if (this.game.gameSound) this.game.sound.shot()
+
                 setTimeout(() => {
-                    setTimeout(() => {
-                        this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x - 5, this.y + this.height * 0.3, -9));
-                    }, 100);
+                    this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x - 5, this.y + this.height * 0.5, -8));
+                    if (this.game.gameSound) this.game.sound.shot()
 
                     setTimeout(() => {
-                        this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x - 5, this.y + this.height * 0.5, -9));
-                    }, 300);
+                        this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x - 5, this.y + this.height * 0.7, -8));
+                        if (this.game.gameSound) this.game.sound.shot()
+                        this.elapsedTime = 0;
+                    }, shootingDelay);
+                }, shootingDelay);
+            }, shootingDelay);
 
-                    setTimeout(() => {
-                        this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x - 5, this.y + this.height * 0.7, -9));
-                    }, 600);
-
-
-                }, 200);
-
-            }
-            this.elapsedTime = 0
+            this.elapsedTime = 0;
         }
     }
 }
+
+
 class Drone extends Enemy {
     constructor(game, x, y) {
         super(game);
@@ -180,7 +190,7 @@ class Bulbwhale extends Enemy {
         this.imgEnemy.src = "./enemies/bulbwhale.png";
         this.frameY = Math.floor(Math.random() * 2)
         this.lives = 12;
-        this.score = 17;
+        this.score = 16;
         this.type = "bulbwhale";
         this.speedX = Math.random() * -1.2 - 0.2;
     }
@@ -240,7 +250,7 @@ class Stalker extends Enemy {
         this.imgEnemy = new Image();
         this.imgEnemy.src = "./enemies/stalker.png";
         this.lives = 7;
-        this.score = 20;
+        this.score = 10;
         this.type = "stalker";
         this.amplitude = 8;
         this.speedX = Math.random() * -5 - 2;
@@ -302,7 +312,7 @@ class Razorfin extends Stalker {
         this.imgEnemy.src = "./enemies/razorfin.png";
         this.frameY = 0;
         this.lives = 6;
-        this.score = 15;
+        this.score = 12;
         this.type = "razorfin";
         this.followSpeed = 0.09;
         this.amplitude = Math.random() * 11 + 4
@@ -323,16 +333,14 @@ class Razorfin extends Stalker {
         this.y += deltaY * this.followSpeed + this.speedY;
 
 
-        this.shootTrigger = Math.random() * 1000 + 1000
+        this.shootTrigger = Math.random() * 2000 + 1200
         const shootingThreshold = 13;
-        if (this.elapsedTime >= this.shootTrigger && Math.abs(this.y - this.game.player.y - this.game.player.height * 0.4) <= shootingThreshold) {
+        if (this.elapsedTime >= this.shootTrigger && Math.abs(this.y - this.game.player.y - this.game.player.height * 0.4 || Math.abs(this.y - this.game.player.y - this.game.player.height * 0.0)) <= shootingThreshold) {
             const randomize = Math.floor(Math.random() * 4 + 1)
             for (let i = 0; i < randomize; i++) {
-                setTimeout(() => {
-                    this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x - 10, this.y + this.height * 0.5, -8));
-                    if (this.game.gameSound) this.game.sound.shot()
+                this.game.projectilesFromEnemy.push(new ProjectileEnemy(this.game, this.x - 10, this.y + this.height * 0.5, -8));
+                if (this.game.gameSound) this.game.sound.shot()
 
-                }, 500);
 
             }
             this.elapsedTime = 0
