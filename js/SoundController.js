@@ -6,7 +6,7 @@ export class SoundController {
       this.powerDownSound = new Audio("./sounds/powerdown.wav")
       this.shieldSound = new Audio("./sounds/shield.wav")
       this.shotSound = new Audio("./sounds/shot.wav")
-      this.backgroundMusic = new Audio("./sounds/music.mp3");
+    //   this.backgroundMusic = new Audio("./sounds/music.mp3");
       this.audioctx = new AudioContext();
       this.volume = this.audioctx.createGain()
       this.backgroundMusicBuffer = null;
@@ -30,7 +30,7 @@ export class SoundController {
       this.source = this.audioctx.createBufferSource();
       this.source.buffer = this.backgroundMusicBuffer;
       this.source.connect(this.volume);
-      this.volume.gain.value = 0.4
+      this.volume.gain.value = 0.3
       this.volume.connect(this.audioctx.destination)
       this.source.loop = true;
       this.source.start();
