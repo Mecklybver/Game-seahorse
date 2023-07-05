@@ -102,7 +102,7 @@ class Game {
         this.lives.forEach(life => {
             life.update(deltaTime)
             if (this.checkCollision(life, this.player)) {
-                if(this.player.lives != 10 || this.player.lives === 0)this.player.lives++
+                if (this.player.lives != 10 || this.player.lives === 0) this.player.lives++
                 this.lives.splice(this.lives.indexOf(life), 1)
             }
 
@@ -126,7 +126,6 @@ class Game {
         this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
         this.projectilesFromEnemy = this.projectilesFromEnemy.filter(projectile => !projectile.markedForDeletion);
         this.lives = this.lives.filter(life => !life.markedForDeletion);
-        console.log(this.lives)
 
 
 
@@ -234,7 +233,6 @@ class Game {
                         if (!this.gameOver) this.score += enemy.score;
 
                         if (this.score > 100 && this.score % 100 <= 3 || this.score > this.winningScore * 0.5 && this.score % 20 <= 4) {
-                            console.log(this.lives)
                             this.lives.push(new Live(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5))
                         }
 
@@ -242,10 +240,11 @@ class Game {
 
                         if (this.score > this.winningScore) this.gameOver = true;
                         let randomize = Math.random()
+                        console.log(randomize)
 
 
-                        if (enemy.type === "lucky" && randomize < 0.5 ) this.player.enterPowerUp()
-                        if (enemy.type === "lucky" && randomize >= 0.5) {
+                        if (enemy.type === "lucky" && randomize < 0.5 && this.score > this.winningScore * 0.4 ) this.player.enterPowerUp()
+                        if (enemy.type === "lucky" && randomize >= 0.5 || enemy.type === "lucky" && randomize < 0.5 && this.score < this.winningScore * 0.4) {
                             if (this.gameSound) this.sound.shield()
                             this.player.shield = true
                             this.ammo = this.maxAmmo
