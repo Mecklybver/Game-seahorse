@@ -237,7 +237,7 @@ class Game {
                         }
 
                         if (this.score > this.winningScore) this.gameOver = true;
-                        if (enemy.type === "lucky" && randomize < 0.5 ) this.player.enterPowerUp()
+                        if (enemy.type === "lucky") this.player.enterPowerUp()
                       
                         if (enemy.type === "moonfish") this.player.enterPowerUp()
                         if (enemy.type === "bulbwhale" || enemy.type === "moonfish") {

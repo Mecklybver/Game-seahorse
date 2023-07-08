@@ -40,6 +40,9 @@ export  class Shield {
                     setTimeout(() => {
                         this.game.sound.shield();
                     }, 200);
+                    setTimeout(() => {
+                        this.game.sound.shield();
+                    }, 400);
                 }
             }
         }
