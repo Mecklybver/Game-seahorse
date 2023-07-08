@@ -16,6 +16,7 @@ export class InputHandler {
             } else if (e.key === "F2") {
                 this.game.debug = !this.game.debug
             } else if (e.key === "p") {
+                this.game.player.powerUp =!this.game.player.powerUp
             } else if (e.key === "w") {
                 pause = !pause
                     cancelAnimationFrame(animate)
